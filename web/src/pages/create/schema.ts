@@ -4,7 +4,7 @@ const baseSchema = z.object({
   starting_price: z.number().min(0),
   minimum_bid: z.number().min(0),
   buyout_price: z.number().min(0).optional(),
-  start_date: z.date(),
+  start_date: z.date().optional(),
 });
 
 const vehicleSchema = z.object({

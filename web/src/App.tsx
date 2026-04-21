@@ -4,6 +4,7 @@ import { debugData } from "@/utils/debugData";
 import { useState } from "react";
 import CreatePage from "./pages/create";
 import Frame from "@/components/frame";
+import HomePage from "./pages/home";
 
 function App() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function App() {
     <div className="h-screen overflow-hidden">
       <Frame>
         <Routes>
-          <Route path="/" element={<>Home</>} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/create" element={<CreatePage />} />
         </Routes>
       </Frame>

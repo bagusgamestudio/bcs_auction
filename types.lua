@@ -1,8 +1,14 @@
----@enum HouseType
-HouseType = {
-    Shell = "shell",
-    Teleport = "teleport",
-    MLO = "mlo"
+---@enum AuctionType
+AuctionType = {
+    Live = "live",
+    Ongoing = "ongoing",
+}
+
+---@enum AuctionCategory
+AuctionCategory = {
+    Vehicle = "vehicle",
+    Property = "property",
+    Item = "item",
 }
 
 ---@enum FrameState
