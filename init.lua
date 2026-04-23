@@ -14,6 +14,7 @@ end
 if IsDuplicityVersion() then
     Server = {
         config = lib.load('config.server'),
+        utils = lib.load('modules.utils.server')
     }
     lib.load('modules.utils.server')
     OxMysql = exports.oxmysql

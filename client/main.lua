@@ -15,6 +15,11 @@ lib.points.new({
         if IsControlJustPressed(0, 38) then
             SetVisible(true, '')
             SetFrame(FrameState.Visible)
+            local player = lib.callback.await('bcs_auction:server:GetPlayer')
+            SendNUIMessage({
+                action = 'setPlayer',
+                data = player
+            })
         end
     end
 })
@@ -27,7 +32,6 @@ RegisterNUICallback('closeFrame', function(data, cb)
 end)
 
 RegisterNUICallback('createAuction', function(data, cb)
-    print(json.encode(data, { indent = true }))
     TriggerServerEvent('bcs_auction:server:CreateAuction', data)
     cb(true)
 end)
@@ -35,5 +39,18 @@ end)
 RegisterNUICallback('getAuctions', function(data, cb)
     Wait(1000) -- test delay
     cb(lib.callback.await('bcs_auction:server:GetAuctions', false, data.auctionType, data.category, data.page, data
-    .limit))
+        .limit))
+end)
+
+RegisterNUICallback('getAuctionById', function(data, cb)
+    cb(lib.callback.await('bcs_auction:server:GetAuctionById', false, data.id))
+end)
+
+RegisterNUICallback('deleteAuction', function(data, cb)
+    cb(lib.callback.await('bcs_auction:server:DeleteAuction', false, data.id))
+end)
+
+RegisterNUICallback('updateAuction', function(data, cb)
+    TriggerServerEvent('bcs_auction:server:UpdateAuction', data)
+    cb(true)
 end)

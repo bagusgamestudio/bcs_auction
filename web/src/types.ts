@@ -1,7 +1,10 @@
-export enum HouseType {
-  Shell = "shell",
-  Teleport = "teleport",
-  MLO = "mlo",
+export interface AuctionCategoryData {
+  brand?: string;
+  model?: string;
+  plate?: string;
+  name?: string;
+  address?: string;
+  amount?: number;
 }
 
 export interface Auction {
@@ -9,6 +12,7 @@ export interface Auction {
   identifier: string;
   type: "live" | "ongoing";
   category: "vehicle" | "property" | "item";
+  category_data: AuctionCategoryData | null;
   starting_price: number;
   minimum_bid: number;
   buyout_price: number;

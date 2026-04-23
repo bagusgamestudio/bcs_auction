@@ -3,8 +3,10 @@ import { useNuiEvent } from "@/hooks/useNuiEvent";
 import { debugData } from "@/utils/debugData";
 import { useState } from "react";
 import CreatePage from "./pages/create";
+import EditPage from "./pages/edit";
 import Frame from "@/components/frame";
 import HomePage from "./pages/home";
+import { PlayerProvider } from "./hooks/usePlayer";
 
 function App() {
   const navigate = useNavigate();
@@ -20,12 +22,15 @@ function App() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <Frame>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/create" element={<CreatePage />} />
-        </Routes>
-      </Frame>
+      <PlayerProvider>
+        <Frame>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreatePage />} />
+            <Route path="/edit/:id" element={<EditPage />} />
+          </Routes>
+        </Frame>
+      </PlayerProvider>
     </div>
   );
 }
@@ -35,3 +40,4 @@ export default App;
 debugData([{ action: "initUI", data: {} }]);
 debugData([{ action: "setPage", data: "" }]);
 debugData([{ action: "setVisible", data: true }]);
+debugData([{ action: "setPlayer", data: { identifier: "", isAdmin: false } }]);

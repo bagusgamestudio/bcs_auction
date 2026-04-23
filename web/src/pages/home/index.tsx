@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchNui } from "@/utils/fetchNui";
 import { Auction } from "@/types";
@@ -11,16 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PaginationComponent } from "@/components/pagination";
 
 const HomePage = () => {
-  const [searchParams, _] = useSearchParams();
-
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
   const [auctionType, setAuctionType] = useState("live");
   const [category, setCategory] = useState("vehicle");
-  const [totalPages, setTotalPages] = useState(1);
 
   const fetchAuctions = async () => {
     setLoading(true);
@@ -30,12 +26,11 @@ const HomePage = () => {
         {
           auctionType,
           category,
-          page: Number(searchParams.get("page")) || 1,
+          page: 1,
           limit: 4,
         },
       );
       setAuctions(data.data || []);
-      setTotalPages(Math.ceil(data.total / 4));
     } catch (error) {
       console.error("Failed to fetch auctions:", error);
     } finally {
@@ -45,7 +40,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchAuctions();
-  }, [auctionType, category, searchParams.get("page")]);
+  }, [auctionType, category]);
 
   return (
     <div className="p-4 space-y-4">
@@ -88,11 +83,14 @@ const HomePage = () => {
       ) : (
         <div className="grid gap-3">
           {auctions.map((auction) => (
-            <AuctionCard key={auction.id} auction={auction} />
+            <AuctionCard
+              key={auction.id}
+              auction={auction}
+              onRefresh={fetchAuctions}
+            />
           ))}
         </div>
       )}
-      <PaginationComponent totalPages={totalPages} />
     </div>
   );
 };
