@@ -12,11 +12,13 @@ shared_script {
 client_scripts {
     'init.lua',
     'client/*.lua',
+    'modules/integration/client.lua',
 }
 
 server_scripts {
     'init.lua',
     'server/**/*.lua',
+    'modules/integration/server.lua',
 }
 
 files {

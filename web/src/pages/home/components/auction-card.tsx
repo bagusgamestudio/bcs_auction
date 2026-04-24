@@ -17,12 +17,12 @@ const getCategoryLabel = (auction: Auction) => {
   if (!data) return auction.category;
 
   if (auction.category === "vehicle") {
-    return `${data.brand} ${data.model}`;
+    return data.vehiclePlate;
   }
   if (auction.category === "property") {
-    return data.name;
+    return data.homeName;
   }
-  return data.name;
+  return `${data.itemName} (${data.itemAmount})`;
 };
 
 export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
@@ -84,19 +84,20 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
               </div>
             )}
           </div>
-          {auction.category === "vehicle" && auction.category_data?.plate && (
+          {auction.category === "vehicle" &&
+            auction.category_data?.vehiclePlate && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                Plate: {auction.category_data.vehiclePlate}
+              </div>
+            )}
+          {auction.category === "property" && auction.category_data?.homeId && (
             <div className="mt-2 text-xs text-muted-foreground">
-              Plate: {auction.category_data.plate}
+              {auction.category_data.homeId}
             </div>
           )}
-          {auction.category === "property" && auction.category_data?.address && (
+          {auction.category === "item" && auction.category_data?.itemAmount && (
             <div className="mt-2 text-xs text-muted-foreground">
-              {auction.category_data.address}
-            </div>
-          )}
-          {auction.category === "item" && auction.category_data?.amount && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              Amount: {auction.category_data.amount}
+              Amount: {auction.category_data.itemAmount}
             </div>
           )}
           {auction.start_time && (

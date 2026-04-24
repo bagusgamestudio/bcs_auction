@@ -1,10 +1,12 @@
 export interface AuctionCategoryData {
-  brand?: string;
-  model?: string;
-  plate?: string;
-  name?: string;
-  address?: string;
-  amount?: number;
+  homeId: string;
+  homeName: string;
+
+  vehiclePlate: string;
+
+  itemName: string;
+  itemLabel: string;
+  itemAmount: number;
 }
 
 export interface Auction {
@@ -16,8 +18,8 @@ export interface Auction {
   starting_price: number;
   minimum_bid: number;
   buyout_price: number;
-  start_time: string | null;
-  end_time: string | null;
+  start_time: string;
+  end_time: string;
   created_at: string;
   updated_at: string;
 }

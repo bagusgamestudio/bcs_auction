@@ -29,6 +29,7 @@ const HomePage = () => {
           page: 1,
           limit: 4,
         },
+        { data: [], total: 0 },
       );
       setAuctions(data.data || []);
     } catch (error) {

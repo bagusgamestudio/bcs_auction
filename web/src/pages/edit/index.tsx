@@ -15,7 +15,9 @@ const EditPage = () => {
     const fetchAuction = async () => {
       if (!id) return;
       try {
-        const data = await fetchNui<Auction>("getAuctionById", { id: Number(id) });
+        const data = await fetchNui<Auction>("getAuctionById", {
+          id: Number(id),
+        });
         setAuction(data || null);
       } finally {
         setLoading(false);
@@ -35,12 +37,12 @@ const EditPage = () => {
     starting_price: auction.starting_price,
     minimum_bid: auction.minimum_bid,
     buyout_price: auction.buyout_price,
-    brand: auction.category_data?.brand || "",
-    model: auction.category_data?.model || "",
-    plate: auction.category_data?.plate || "",
-    name: auction.category_data?.name || "",
-    address: auction.category_data?.address || "",
-    amount: auction.category_data?.amount || 1,
+
+    homeId: auction.category_data?.homeId,
+    vehiclePlate: auction.category_data?.vehiclePlate,
+    itemName: auction.category_data?.itemName,
+    itemAmount: auction.category_data?.itemAmount,
+    itemLabel: auction.category_data?.itemLabel,
   };
 
   return (
@@ -50,7 +52,10 @@ const EditPage = () => {
           Back
         </Button>
       </div>
-      <AuctionForm defaultValues={defaultValues} onSuccess={() => navigate("/")} />
+      <AuctionForm
+        defaultValues={defaultValues}
+        onSuccess={() => navigate("/")}
+      />
     </div>
   );
 };

@@ -32,19 +32,16 @@ function CreateAuction(identifier, data)
 
     if data.category == "vehicle" then
         categoryData = {
-            brand = data.brand,
-            model = data.model,
-            plate = data.plate
+            vehiclePlate = data.vehiclePlate
         }
     elseif data.category == "property" then
         categoryData = {
-            name = data.name,
-            address = data.address
+            homeId = data.homeId
         }
     elseif data.category == "item" then
         categoryData = {
-            name = data.name,
-            amount = data.amount
+            itemName = data.itemName,
+            itemAmount = data.itemAmount
         }
     end
 
@@ -55,10 +52,10 @@ function CreateAuction(identifier, data)
     end
 
     local startTime = nil
-    if data.start_date then
-        startTime = Server.utils.FormatDate(data.start_date)
+    if data.start_time then
+        startTime = Server.utils.FormatDate(data.start_time)
     end
-    local endTime = Server.utils.FormatDate(data.end_date)
+    local endTime = Server.utils.FormatDate(data.end_time)
 
     local query =
     "INSERT INTO `auction` (`identifier`, `type`, `category`, `category_data`, `starting_price`, `minimum_bid`, `buyout_price`, `start_time`, `end_time`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"

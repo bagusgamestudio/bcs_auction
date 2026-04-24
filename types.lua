@@ -17,3 +17,7 @@ FrameState = {
     Minimized = "minimized",
     Visible = "visible",
 }
+
+---@class Option
+---@field value string
+---@field label string

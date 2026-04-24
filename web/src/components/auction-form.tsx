@@ -13,23 +13,35 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { fetchNui } from "@/utils/fetchNui";
-import { auctionSchema, AuctionSchema, defaultAuctionValues } from "@/schemas/auction";
+import {
+  auctionSchema,
+  AuctionSchema,
+  defaultAuctionValues,
+} from "@/schemas/auction";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { useEffect, useState } from "react";
 
 interface AuctionFormProps {
   defaultValues?: Partial<AuctionSchema>;
   onSuccess?: () => void;
 }
 
+interface Option {
+  value: string;
+  label: string;
+}
+
 export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
   const navigate = useNavigate();
   const isEdit = !!defaultValues?.id;
+  const [options, setOptions] = useState<Option[]>([]);
 
   const form = useForm<AuctionSchema>({
     resolver: zodResolver(auctionSchema),
@@ -40,9 +52,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
   });
 
   const onSubmit = (data: AuctionSchema) => {
-    const payload = isEdit
-      ? { id: defaultValues!.id, ...data }
-      : data;
+    const payload = isEdit ? { id: defaultValues!.id, ...data } : data;
 
     fetchNui(isEdit ? "updateAuction" : "createAuction", payload).then(() => {
       navigate("/");
@@ -53,9 +63,74 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
   const category = form.watch("category");
   const type = form.watch("type");
 
+  useEffect(() => {
+    const getCategoryOptions = async () => {
+      const categoryOptions: Record<string, string> = {
+        vehicle: "getVehicles",
+        property: "getProperties",
+        item: "getItems",
+      };
+
+      const options = await fetchNui<Option[]>(
+        categoryOptions[category],
+        null,
+        MOCK_DATA_OPTIONS,
+      );
+      setOptions(options);
+    };
+
+    getCategoryOptions();
+  }, [category]);
+
+  const getFormFieldName = (category: string) => {
+    const fieldMap: Record<string, "homeId" | "vehiclePlate" | "itemName"> = {
+      property: "homeId",
+      vehicle: "vehiclePlate",
+      item: "itemName",
+    };
+    return fieldMap[category];
+  };
+
+  const SelectOptions = ({ category }: { category: string }) => {
+    const catagoryLabels: Record<string, string> = {
+      vehicle: "Vehicle",
+      property: "Property",
+      item: "Item Name",
+    };
+
+    return (
+      <FormField
+        name={getFormFieldName(category)}
+        render={({ field }) => (
+          <FormItem className={`col-span-${category === "item" ? 1 : 2}`}>
+            <FormLabel>{catagoryLabels[category]}</FormLabel>
+            <Select onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid grid-cols-2 gap-4"
+      >
         <FormField
           control={form.control}
           name="category"
@@ -104,7 +179,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         {type === "live" && (
           <FormField
             control={form.control}
-            name="start_date"
+            name="start_time"
             render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel>Start Date (Optional)</FormLabel>
@@ -124,7 +199,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         {type === "ongoing" && (
           <FormField
             control={form.control}
-            name="end_date"
+            name="end_time"
             render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel>End Date</FormLabel>
@@ -141,99 +216,16 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           />
         )}
 
-        {category === "vehicle" && (
-          <>
-            <FormField
-              control={form.control}
-              name="brand"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Brand</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="model"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Model</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="plate"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>Plate</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        {category === "vehicle" && <SelectOptions category={category} />}
 
-        {category === "property" && (
-          <>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        {category === "property" && <SelectOptions category={category} />}
 
         {category === "item" && (
           <>
+            <SelectOptions category={category} />
             <FormField
               control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
+              name="itemAmount"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
@@ -298,7 +290,9 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
                   type="number"
                   value={field.value ?? ""}
                   onChange={(e) =>
-                    field.onChange(e.target.value ? Number(e.target.value) : undefined)
+                    field.onChange(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
                   }
                 />
               </FormControl>
@@ -316,3 +310,11 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
     </Form>
   );
 };
+
+const MOCK_DATA_OPTIONS = [
+  { label: "Option 1", value: "option-1" },
+  { label: "Option 2", value: "option-2" },
+  { label: "Option 3", value: "option-3" },
+  { label: "Option 4", value: "option-4" },
+  { label: "Option 5", value: "option-5" },
+];

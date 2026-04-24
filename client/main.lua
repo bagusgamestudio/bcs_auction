@@ -38,8 +38,14 @@ end)
 
 RegisterNUICallback('getAuctions', function(data, cb)
     Wait(1000) -- test delay
-    cb(lib.callback.await('bcs_auction:server:GetAuctions', false, data.auctionType, data.category, data.page, data
-        .limit))
+    local auctions = lib.callback.await('bcs_auction:server:GetAuctions', false, data.auctionType, data.category,
+        data.page, data.limit)
+
+    for i = 1, #auctions.data do
+        auctions.data[i] = GetCategoryData(auctions.data[i])
+    end
+
+    cb(auctions)
 end)
 
 RegisterNUICallback('getAuctionById', function(data, cb)
@@ -53,4 +59,16 @@ end)
 RegisterNUICallback('updateAuction', function(data, cb)
     TriggerServerEvent('bcs_auction:server:UpdateAuction', data)
     cb(true)
+end)
+
+RegisterNUICallback('getVehicles', function(data, cb)
+    cb(GetVehicles())
+end)
+
+RegisterNUICallback('getProperties', function(data, cb)
+    cb(GetProperties())
+end)
+
+RegisterNUICallback('getItems', function(data, cb)
+    cb(GetItems())
 end)
