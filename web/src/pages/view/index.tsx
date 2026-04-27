@@ -3,12 +3,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchNui } from "@/utils/fetchNui";
 import { Auction } from "@/types";
 import { Button } from "@/components/ui/button";
+import { usePlayer } from "@/hooks/usePlayer";
+import LiveView from "./live";
+import { useNuiEvent } from "@/hooks/useNuiEvent";
 
 const ViewPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
+  const { player } = usePlayer();
 
   useEffect(() => {
     const fetchAuction = async () => {
@@ -26,15 +30,43 @@ const ViewPage = () => {
     fetchAuction();
   }, [id]);
 
+  useNuiEvent<{
+    id: number;
+    key: keyof Auction;
+    value: Auction[keyof Auction];
+  }>("updateAuction", (data) => {
+    setAuction((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [data.key]: data.value,
+      };
+    });
+  });
+
+  console.log(JSON.stringify(auction, null, 2));
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (!auction) return <div className="p-4">Auction not found</div>;
 
+  if (auction.live) return <LiveView data={auction} />;
+
   return (
     <div className="p-4">
-      <div className="mb-4">
+      <div className="flex items-center justify-between mb-4">
         <Button variant="outline" onClick={() => navigate("/")}>
           Back
         </Button>
+        {auction.type === "live" &&
+          auction.identifier == player?.identifier && (
+            <Button
+              onClick={() => {
+                fetchNui("startLive", auction.id);
+              }}
+            >
+              Start Live
+            </Button>
+          )}
       </div>
       <div className="space-y-4">
         <div>
@@ -47,24 +79,33 @@ const ViewPage = () => {
         </div>
         <div>
           <span className="text-muted-foreground">Starting Price: </span>
-          <span className="font-medium">${auction.starting_price.toLocaleString()}</span>
+          <span className="font-medium">
+            ${auction.starting_price.toLocaleString()}
+          </span>
         </div>
         <div>
           <span className="text-muted-foreground">Minimum Bid: </span>
-          <span className="font-medium">${auction.minimum_bid.toLocaleString()}</span>
+          <span className="font-medium">
+            ${auction.minimum_bid.toLocaleString()}
+          </span>
         </div>
         {auction.buyout_price > 0 && (
           <div>
             <span className="text-muted-foreground">Buyout Price: </span>
-            <span className="font-medium">${auction.buyout_price.toLocaleString()}</span>
+            <span className="font-medium">
+              ${auction.buyout_price.toLocaleString()}
+            </span>
           </div>
         )}
-        {auction.category === "vehicle" && auction.category_data?.vehiclePlate && (
-          <div>
-            <span className="text-muted-foreground">Plate: </span>
-            <span className="font-medium">{auction.category_data.vehiclePlate}</span>
-          </div>
-        )}
+        {auction.category === "vehicle" &&
+          auction.category_data?.vehiclePlate && (
+            <div>
+              <span className="text-muted-foreground">Plate: </span>
+              <span className="font-medium">
+                {auction.category_data.vehiclePlate}
+              </span>
+            </div>
+          )}
         {auction.category === "property" && auction.category_data?.homeId && (
           <div>
             <span className="text-muted-foreground">Property: </span>
@@ -75,24 +116,33 @@ const ViewPage = () => {
           <>
             <div>
               <span className="text-muted-foreground">Item: </span>
-              <span className="font-medium">{auction.category_data.itemLabel || auction.category_data.itemName}</span>
+              <span className="font-medium">
+                {auction.category_data.itemLabel ||
+                  auction.category_data.itemName}
+              </span>
             </div>
             <div>
               <span className="text-muted-foreground">Amount: </span>
-              <span className="font-medium">{auction.category_data.itemAmount}</span>
+              <span className="font-medium">
+                {auction.category_data.itemAmount}
+              </span>
             </div>
           </>
         )}
         {auction.start_time && (
           <div>
             <span className="text-muted-foreground">Started: </span>
-            <span className="font-medium">{new Date(auction.start_time).toLocaleString()}</span>
+            <span className="font-medium">
+              {new Date(auction.start_time).toLocaleString()}
+            </span>
           </div>
         )}
         {auction.end_time && (
           <div>
             <span className="text-muted-foreground">Ends: </span>
-            <span className="font-medium">{new Date(auction.end_time).toLocaleString()}</span>
+            <span className="font-medium">
+              {new Date(auction.end_time).toLocaleString()}
+            </span>
           </div>
         )}
       </div>

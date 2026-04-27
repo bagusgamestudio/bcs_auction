@@ -22,4 +22,9 @@ export interface Auction {
   end_time: string;
   created_at: string;
   updated_at: string;
+
+  live?: {
+    id: number;
+    startTime: number;
+  };
 }

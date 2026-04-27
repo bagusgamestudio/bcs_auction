@@ -100,3 +100,18 @@ RegisterNUICallback('getCoords', function(data, cb)
     SetFrame(FrameState.Visible)
     SetNuiFocus(true, true)
 end)
+
+RegisterNUICallback('startLive', function(data, cb)
+    TriggerServerEvent('bcs_auction:server:StartLive', data)
+end)
+
+RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
+    SendNUIMessage({
+        action = 'updateAuction',
+        data = {
+            id = id,
+            key = key,
+            value = value
+        }
+    })
+end)

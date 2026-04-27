@@ -21,3 +21,7 @@ FrameState = {
 ---@class Option
 ---@field value string
 ---@field label string
+
+---@class AuctionLive
+---@field id number
+---@field startTime number

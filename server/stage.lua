@@ -1,7 +1,7 @@
 local stages = {}
 local zones = {}
 
-local function TriggerZones(event, ...)
+ function TriggerZones(event, ...)
     for i = 1, #zones do
         TriggerClientEvent(event, zones[i], ...)
     end
@@ -66,5 +66,14 @@ RegisterNetEvent("bcs_auction:server:LoadStages", function()
         local stage = stages[i]
         TriggerClientEvent("bcs_auction:client:LoadStage", source, stage)
         Wait(100)
+    end
+end)
+
+AddEventHandler('playerDropped', function()
+    for i = #zones, 1, -1 do
+        if zones[i] == source then
+            table.remove(zones, i)
+            break
+        end
     end
 end)

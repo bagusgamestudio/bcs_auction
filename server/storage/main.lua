@@ -141,11 +141,13 @@ function UpdateAuction(data)
     if data.type then
         table.insert(updates, "`type` = ?")
         table.insert(values, data.type)
+        Auctions[data.id].type = data.type
     end
 
     if data.category then
         table.insert(updates, "`category` = ?")
         table.insert(values, data.category)
+        Auctions[data.id].category = data.category
     end
 
     local categoryData = {}
@@ -169,38 +171,36 @@ function UpdateAuction(data)
 
         table.insert(updates, "`category_data` = ?")
         table.insert(values, json.encode(categoryData))
+        Auctions[data.id].category_data = categoryData
     end
 
     if data.starting_price then
         table.insert(updates, "`starting_price` = ?")
         table.insert(values, data.starting_price)
+        Auctions[data.id].starting_price = data.starting_price
     end
     if data.minimum_bid then
         table.insert(updates, "`minimum_bid` = ?")
         table.insert(values, data.minimum_bid)
+        Auctions[data.id].minimum_bid = data.minimum_bid
     end
     if data.buyout_price ~= nil then
         table.insert(updates, "`buyout_price` = ?")
         table.insert(values, data.buyout_price)
+        Auctions[data.id].buyout_price = data.buyout_price
     end
-
-    if #updates == 0 then
-        return false, "No fields to update"
+    if data.live then
+        Auctions[data.id].live = data.live
     end
-
-    table.insert(values, data.id)
-
-    local query = "UPDATE `auction` SET " .. table.concat(updates, ", ") .. " WHERE `id` = ?"
-    OxMysql:query_async(query, values)
-
-    auction.type = data.type
-    auction.category = data.category
-    auction.category_data = categoryData
-    auction.starting_price = data.starting_price
-    auction.minimum_bid = data.minimum_bid
-    auction.buyout_price = data.buyout_price
 
     UpdateStage(auction.id, auction.category, auction.category_data)
+
+    if #updates > 0 then
+        table.insert(values, data.id)
+
+        local query = "UPDATE `auction` SET " .. table.concat(updates, ", ") .. " WHERE `id` = ?"
+        OxMysql:update_async(query, values)
+    end
 
     return true, "Auction updated"
 end
