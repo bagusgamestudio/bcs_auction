@@ -32,7 +32,23 @@ RegisterNUICallback('closeFrame', function(data, cb)
 end)
 
 RegisterNUICallback('createAuction', function(data, cb)
+    if data.category == 'vehicle' then
+        if not data.coords then
+            Notify('Auction', 'No coords provided', 'error')
+            return cb(false)
+        end
+
+        local coords = vec4(data.coords.x, data.coords.y, data.coords.z, data.coords.w)
+        local locationCoords = Shared.config.coords
+
+        if #(coords.xyz - locationCoords.xyz) > 100 then
+            Notify('Auction', 'Too far from the auction location', 'error')
+            return cb(false)
+        end
+    end
+
     TriggerServerEvent('bcs_auction:server:CreateAuction', data)
+
     cb(true)
 end)
 
@@ -71,4 +87,16 @@ end)
 
 RegisterNUICallback('getItems', function(data, cb)
     cb(GetItems())
+end)
+
+RegisterNUICallback('getCoords', function(data, cb)
+    SetNuiFocus(false, false)
+    SetFrame(FrameState.Minimized)
+    Wait(500)
+
+    cb(MarkerLocation())
+
+    Wait(100)
+    SetFrame(FrameState.Visible)
+    SetNuiFocus(true, true)
 end)

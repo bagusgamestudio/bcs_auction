@@ -43,7 +43,19 @@ end
 
 ---@return Option[]
 function GetVehicles()
-    return {}
+    local options = {}
+    local vehicles = lib.callback.await('bcs_auction:server:integration:GetVehicles')
+
+    for i = 1, #vehicles, 1 do
+        local vehicle = vehicles[i]
+        local name = GetLabelText(GetDisplayNameFromVehicleModel(tonumber(vehicle.model) --[[@as number]]))
+        table.insert(options, {
+            value = vehicle.plate,
+            label = ('%s - [%s]'):format(name, vehicle.plate)
+        })
+    end
+
+    return options
 end
 
 function GetCategoryData(data)

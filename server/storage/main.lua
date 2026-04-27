@@ -32,7 +32,8 @@ function CreateAuction(identifier, data)
 
     if data.category == "vehicle" then
         categoryData = {
-            vehiclePlate = data.vehiclePlate
+            vehiclePlate = data.vehiclePlate,
+            coords = data.coords
         }
     elseif data.category == "property" then
         categoryData = {
@@ -81,6 +82,7 @@ function CreateAuction(identifier, data)
     data.end_time = endTime
     Auctions[id] = data
 
+    CreateStage(id, data.category, data.category_data)
 
     return id > 0, "Auction created"
 end
@@ -122,6 +124,8 @@ function DeleteAuction(id, identifier)
     OxMysql:query_async("DELETE FROM `auction` WHERE `id` = ?", { id })
     Auctions[id] = nil
 
+    DeleteStage(id)
+
     return true, "Auction deleted"
 end
 
@@ -144,15 +148,25 @@ function UpdateAuction(data)
         table.insert(values, data.category)
     end
 
+    local categoryData = {}
+
     if data.category then
-        local categoryData = {}
         if data.category == "vehicle" then
-            categoryData = { brand = data.brand, model = data.model, plate = data.plate }
+            categoryData = {
+                vehiclePlate = data.vehiclePlate,
+                coords = data.coords
+            }
         elseif data.category == "property" then
-            categoryData = { name = data.name, address = data.address }
+            categoryData = {
+                homeId = data.homeId
+            }
         elseif data.category == "item" then
-            categoryData = { name = data.name, amount = data.amount }
+            categoryData = {
+                itemName = data.itemName,
+                itemAmount = data.itemAmount
+            }
         end
+
         table.insert(updates, "`category_data` = ?")
         table.insert(values, json.encode(categoryData))
     end
@@ -179,9 +193,24 @@ function UpdateAuction(data)
     local query = "UPDATE `auction` SET " .. table.concat(updates, ", ") .. " WHERE `id` = ?"
     OxMysql:query_async(query, values)
 
-    Auctions[data.id] = nil
+    auction.type = data.type
+    auction.category = data.category
+    auction.category_data = categoryData
+    auction.starting_price = data.starting_price
+    auction.minimum_bid = data.minimum_bid
+    auction.buyout_price = data.buyout_price
+
+    UpdateStage(auction.id, auction.category, auction.category_data)
 
     return true, "Auction updated"
+end
+
+function GetStagesAution()
+    local result = OxMysql:query_async("SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle'")
+    for i = 1, #result do
+        result[i].category_data = json.decode(result[i].category_data)
+    end
+    return result
 end
 
 -- RegisterCommand('testaution', function()

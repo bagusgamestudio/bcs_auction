@@ -23,7 +23,7 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
       case FrameState.Hidden:
         return "-translate-x-1/2 translate-y-[400%]";
       case FrameState.Minimized:
-        return "-translate-x-1/2 translate-y-[80%]";
+        return "-translate-x-1/2 translate-y-[60%]";
       case FrameState.Visible:
         return "-translate-x-1/2 -translate-y-1/2";
     }

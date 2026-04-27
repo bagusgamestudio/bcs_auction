@@ -2,7 +2,8 @@
 lib, cache = lib, cache
 
 Shared = {
-    config = lib.load('config.shared')
+    config = lib.load('config.shared'),
+    utils = lib.load('modules.utils.shared')
 }
 
 if GetResourceState('es_extended') == 'started' then
@@ -16,13 +17,10 @@ if IsDuplicityVersion() then
         config = lib.load('config.server'),
         utils = lib.load('modules.utils.server')
     }
-    lib.load('modules.utils.server')
     OxMysql = exports.oxmysql
 else
     Client = {
-        config = lib.load('config.client')
+        config = lib.load('config.client'),
+        utils = lib.load('modules.utils.client')
     }
-    lib.load('modules.utils.client')
 end
-
-lib.load('modules.utils.shared')

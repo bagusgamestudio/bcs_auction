@@ -54,10 +54,13 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
   const onSubmit = (data: AuctionSchema) => {
     const payload = isEdit ? { id: defaultValues!.id, ...data } : data;
 
-    fetchNui(isEdit ? "updateAuction" : "createAuction", payload).then(() => {
-      navigate("/");
-      onSuccess?.();
-    });
+    fetchNui(isEdit ? "updateAuction" : "createAuction", payload).then(
+      (success) => {
+        if (!success) return;
+        navigate("/");
+        onSuccess?.();
+      },
+    );
   };
 
   const category = form.watch("category");
@@ -216,7 +219,54 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           />
         )}
 
-        {category === "vehicle" && <SelectOptions category={category} />}
+        {category === "vehicle" && (
+          <>
+            <SelectOptions category={category} />
+            <FormField
+              control={form.control}
+              name="coords"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Coords</FormLabel>
+                  <FormControl>
+                    <div className="grid grid-cols-5 gap-2">
+                      {Object.entries(field.value).map(([key, value]) => (
+                        <Input
+                          key={key}
+                          type="number"
+                          value={value}
+                          onChange={(e) => {
+                            field.onChange({
+                              ...field.value,
+                              [key]: Number(e.target.value),
+                            });
+                          }}
+                        />
+                      ))}
+                      <Button
+                        onClick={() =>
+                          fetchNui<{
+                            x: number;
+                            y: number;
+                            z: number;
+                            w: number;
+                          }>("getCoords", field.value).then((data) => {
+                            console.log(JSON.stringify(data, null, 2));
+                            field.onChange(data);
+                          })
+                        }
+                        type="button"
+                      >
+                        Get Coords
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         {category === "property" && <SelectOptions category={category} />}
 

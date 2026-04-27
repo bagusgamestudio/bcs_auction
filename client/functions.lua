@@ -26,21 +26,37 @@ function IsAdmin()
 end
 
 function MarkerLocation()
+    local entity = Client.utils.SpawnVehicle('sultan', GetEntityCoords(cache.ped))
+    local heading = GetEntityHeading(entity)
+    SetEntityAlpha(entity, 120, true)
+    SetEntityCollision(entity, false, false)
+    FreezeEntityPosition(entity, true)
+
     while true do
+        DisableControlAction(0, 38, true)
         local hit, _, endCoords = lib.raycast.cam()
         if hit then
-            DrawMarker(1, endCoords.x, endCoords.y, endCoords.z, 0.0, 0.0, 0.0, 0, 0.0, 0.0, 1.5, 1.5,
-                ---@diagnostic disable-next-line
-                1.5, 255, 100, 100, 255, false, true, 2, false, false, false, false)
+            ---@diagnostic disable-next-line
+            SetEntityCoords(entity, endCoords.x, endCoords.y, endCoords.z)
+            SetEntityHeading(entity, heading)
         end
-        if IsControlJustPressed(0, 38) then
+        if IsDisabledControlJustPressed(0, 38) then
             local coords = {
                 x = Round(endCoords.x, 2),
                 y = Round(endCoords.y, 2),
                 z = Round(endCoords.z + 1, 2),
-                w = Round(GetEntityHeading(cache.ped), 2)
+                w = Round(heading, 2)
             }
+            Client.utils.DeleteVehicle(entity)
             return coords
+        end
+
+        if IsControlPressed(0, 14) then
+            heading += 1.0
+            SetEntityHeading(entity, heading)
+        elseif IsControlPressed(0, 15) then
+            heading -= 1.0
+            SetEntityHeading(entity, heading)
         end
     end
 end
