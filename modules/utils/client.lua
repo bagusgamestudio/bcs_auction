@@ -3,7 +3,7 @@ local deleteVehicle = DeleteVehicle
 
 function SpawnVehicle(model, coords)
     lib.requestModel(model)
-    local vehicle = CreateVehicle(model, coords.x, coords.y, coords.z, 0.0, false, false)
+    local vehicle = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, false, false)
 
     table.insert(vehicles, vehicle)
 

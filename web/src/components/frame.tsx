@@ -21,7 +21,7 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
   const getPositionClass = () => {
     switch (state) {
       case FrameState.Hidden:
-        return "-translate-x-1/2 translate-y-[400%]";
+        return "-translate-x-1/2 translate-y-[800%]";
       case FrameState.Minimized:
         return "-translate-x-1/2 translate-y-[60%]";
       case FrameState.Visible:
@@ -36,6 +36,8 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
   useKey("Escape", () => {
     fetchNui("closeFrame");
   });
+
+  console.log(state)
 
   return (
     <>

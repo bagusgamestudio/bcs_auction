@@ -31,88 +31,91 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
 
   return (
     <>
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base capitalize">
-              {getCategoryLabel(auction)}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <span className="text-xs px-2 py-1 bg-secondary rounded uppercase">
-                {auction.type}
-              </span>
-              {player?.isAdmin && (
-                <div className="flex gap-1">
-                  <Link to={`/edit/${auction.id}`}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <Pencil className="h-3 w-3" />
+      <Link to={`/view/${auction.id}`}>
+        <Card className="cursor-pointer">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base capitalize">
+                {getCategoryLabel(auction)}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <span className="text-xs px-2 py-1 bg-secondary rounded uppercase">
+                  {auction.type}
+                </span>
+                {player?.isAdmin && (
+                  <div className="flex gap-1">
+                    <Link to={`/edit/${auction.id}`}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-destructive"
+                      onClick={() => setDeleteDialogOpen(true)}
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-destructive"
-                    onClick={() => setDeleteDialogOpen(true)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between text-sm">
+              <div>
+                <span className="text-muted-foreground">Starting: </span>
+                <span className="font-medium">
+                  ${auction.starting_price.toLocaleString()}
+                </span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Min Bid: </span>
+                <span className="font-medium">
+                  ${auction.minimum_bid.toLocaleString()}
+                </span>
+              </div>
+              {auction.buyout_price > 0 && (
+                <div>
+                  <span className="text-muted-foreground">Buyout: </span>
+                  <span className="font-medium">
+                    ${auction.buyout_price.toLocaleString()}
+                  </span>
                 </div>
               )}
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between text-sm">
-            <div>
-              <span className="text-muted-foreground">Starting: </span>
-              <span className="font-medium">
-                ${auction.starting_price.toLocaleString()}
-              </span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Min Bid: </span>
-              <span className="font-medium">
-                ${auction.minimum_bid.toLocaleString()}
-              </span>
-            </div>
-            {auction.buyout_price > 0 && (
-              <div>
-                <span className="text-muted-foreground">Buyout: </span>
-                <span className="font-medium">
-                  ${auction.buyout_price.toLocaleString()}
-                </span>
-              </div>
-            )}
-          </div>
-          {auction.category === "vehicle" &&
-            auction.category_data?.vehiclePlate && (
+            {auction.category === "vehicle" &&
+              auction.category_data?.vehiclePlate && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Plate: {auction.category_data.vehiclePlate}
+                </div>
+              )}
+            {auction.category === "property" &&
+              auction.category_data?.homeId && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {auction.category_data.homeId}
+                </div>
+              )}
+            {auction.category === "item" &&
+              auction.category_data?.itemAmount && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Amount: {auction.category_data.itemAmount}
+                </div>
+              )}
+            {auction.start_time && (
               <div className="mt-2 text-xs text-muted-foreground">
-                Plate: {auction.category_data.vehiclePlate}
+                Started: {new Date(auction.start_time).toLocaleString()}
               </div>
             )}
-          {auction.category === "property" && auction.category_data?.homeId && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              {auction.category_data.homeId}
-            </div>
-          )}
-          {auction.category === "item" && auction.category_data?.itemAmount && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              Amount: {auction.category_data.itemAmount}
-            </div>
-          )}
-          {auction.start_time && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              Started: {new Date(auction.start_time).toLocaleString()}
-            </div>
-          )}
-          {auction.end_time && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              Ends: {new Date(auction.end_time).toLocaleString()}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
+            {auction.end_time && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                Ends: {new Date(auction.end_time).toLocaleString()}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </Link>
       <DeleteDialog
         auctionId={auction.id}
         open={deleteDialogOpen}

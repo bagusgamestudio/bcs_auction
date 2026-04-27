@@ -64,15 +64,15 @@ end
 ---@param value boolean
 ---@param page? string
 function SetVisible(value, page)
+    if page then
+        SetPage(page)
+        Wait(1)
+    end
     SendNUIMessage({
         action = 'setVisible',
         data = value
     })
     SetNuiFocus(value, value)
-    if page then
-        Wait(1)
-        SetPage(page)
-    end
     Wait(500)
 end
 

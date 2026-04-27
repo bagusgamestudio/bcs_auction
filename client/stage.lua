@@ -79,6 +79,20 @@ exports.ox_target:addGlobalVehicle({
             end
 
             return false
+        end,
+        onSelect = function(data)
+            local entity = data.entity
+            for i = 1, #stages, 1 do
+                if stages[i].entity == entity then
+                    SetVisible(true, 'view/' .. stages[i].id)
+                    SetFrame(FrameState.Visible)
+                    local player = lib.callback.await('bcs_auction:server:GetPlayer')
+                    SendNUIMessage({
+                        action = 'setPlayer',
+                        data = player
+                    })
+                end
+            end
         end
     },
 })

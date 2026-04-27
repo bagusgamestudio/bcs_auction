@@ -3,6 +3,7 @@ import { useNuiEvent } from "@/hooks/useNuiEvent";
 import { debugData } from "@/utils/debugData";
 import { useState } from "react";
 import CreatePage from "./pages/create";
+import ViewPage from "./pages/view";
 import EditPage from "./pages/edit";
 import Frame from "@/components/frame";
 import HomePage from "./pages/home";
@@ -26,6 +27,7 @@ function App() {
         <Frame>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/view/:id" element={<ViewPage />} />
             <Route path="/create" element={<CreatePage />} />
             <Route path="/edit/:id" element={<EditPage />} />
           </Routes>
