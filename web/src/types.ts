@@ -26,5 +26,14 @@ export interface Auction {
   live?: {
     id: number;
     startTime: number;
+    bids: Bid[];
+    timeLeft: number;
   };
 }
+
+type Bid = {
+  id: number;
+  amount: number;
+  date: string;
+  identifier: string;
+};

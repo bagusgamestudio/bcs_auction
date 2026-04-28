@@ -103,6 +103,12 @@ end)
 
 RegisterNUICallback('startLive', function(data, cb)
     TriggerServerEvent('bcs_auction:server:StartLive', data)
+    cb(true)
+end)
+
+RegisterNUICallback('placeBid', function(data, cb)
+    TriggerServerEvent('bcs_auction:server:PlaceBid', data.id, data.amount)
+    cb(true)
 end)
 
 RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
@@ -114,4 +120,12 @@ RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
             value = value
         }
     })
+end)
+
+RegisterNetEvent("bcs_auction:client:NotifyArea", function(data)
+    if not IsInsideStage() then
+        return
+    end
+
+    NotifyMissionStyle(data.title, data.message, data.duration, data.audioName, data.audioRef)
 end)

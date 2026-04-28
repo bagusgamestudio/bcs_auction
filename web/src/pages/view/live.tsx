@@ -3,6 +3,8 @@ import { Auction } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+import ListBids from "./bids";
+import Bid from "./bid";
 
 interface LiveViewProps {
   data: Auction;
@@ -18,11 +20,13 @@ const LiveView = ({ data }: LiveViewProps) => {
     if (data.category === "property") {
       return data.category_data?.homeName || "Property";
     }
-    return data.category_data?.itemLabel || data.category_data?.itemName || "Item";
+    return (
+      data.category_data?.itemLabel || data.category_data?.itemName || "Item"
+    );
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-4">
       <div className="flex items-center justify-between mb-4">
         <Button variant="ghost" onClick={() => navigate("/")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -42,6 +46,10 @@ const LiveView = ({ data }: LiveViewProps) => {
           </p>
         )}
       </div>
+
+      <Bid data={data} />
+
+      <ListBids data={data} />
     </div>
   );
 };

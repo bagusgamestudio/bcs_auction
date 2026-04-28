@@ -1,0 +1,3 @@
+return {
+    bidTime = 60,
+}

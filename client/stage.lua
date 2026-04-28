@@ -1,6 +1,10 @@
 local inside = false
 local stages = {}
 
+function IsInsideStage()
+    return inside
+end
+
 function LoadStage(stage)
     local entity = Client.utils.SpawnVehicle(stage.model, stage.coords)
     stage.entity = entity

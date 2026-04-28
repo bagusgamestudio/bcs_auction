@@ -92,3 +92,22 @@ function SetFrame(state)
         data = state
     })
 end
+
+function NotifyMissionStyle(title, description, duration, audioName, audioRef)
+    local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
+    while not HasScaleformMovieLoaded(scaleform) do Wait(0) end
+
+    BeginScaleformMovieMethod(scaleform, "SHOW_SHARD_WASTED_MP_MESSAGE")
+    PushScaleformMovieMethodParameterString(title)
+    PushScaleformMovieMethodParameterString(description)
+    EndScaleformMovieMethod()
+
+    local timer = GetGameTimer()
+    if audioName then
+        PlaySoundFrontend(-1, audioName, audioRef, true)
+    end
+    while GetGameTimer() - timer < (duration or 5000) do
+        DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
+        Wait(0)
+    end
+end

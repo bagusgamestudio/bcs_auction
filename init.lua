@@ -1,6 +1,6 @@
 ---@diagnostic disable-next-line
 lib, cache = lib, cache
-
+SetInterval, ClearInterval = SetInterval --[[@as function]], ClearInterval --[[@as function]]
 Shared = {
     config = lib.load('config.shared'),
     utils = lib.load('modules.utils.shared')

@@ -1,7 +1,11 @@
 local stages = {}
 local zones = {}
 
- function TriggerZones(event, ...)
+function GetTotalPlayerInStages()
+    return #zones
+end
+
+function TriggerZones(event, ...)
     for i = 1, #zones do
         TriggerClientEvent(event, zones[i], ...)
     end
