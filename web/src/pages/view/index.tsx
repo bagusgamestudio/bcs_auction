@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { usePlayer } from "@/hooks/usePlayer";
 import LiveView from "./live";
 import { useNuiEvent } from "@/hooks/useNuiEvent";
+import { parseDate } from "@/utils/date";
 
 const ViewPage = () => {
   const { id } = useParams();
@@ -131,7 +132,7 @@ const ViewPage = () => {
           <div>
             <span className="text-muted-foreground">Started: </span>
             <span className="font-medium">
-              {new Date(auction.start_time).toLocaleString()}
+              {parseDate(auction.start_time)?.toLocaleString()}
             </span>
           </div>
         )}
@@ -139,7 +140,7 @@ const ViewPage = () => {
           <div>
             <span className="text-muted-foreground">Ends: </span>
             <span className="font-medium">
-              {new Date(auction.end_time).toLocaleString()}
+              {parseDate(auction.end_time)?.toLocaleString()}
             </span>
           </div>
         )}

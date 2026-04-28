@@ -28,6 +28,23 @@ const baseSchema = z.object({
 });
 
 export const auctionSchema = baseSchema.superRefine((data, ctx) => {
+  if (data.type === "ongoing") {
+    if (!data.start_time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Start date is required for ongoing auction",
+        path: ["start_time"],
+      });
+    }
+    if (!data.end_time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "End date is required for ongoing auction",
+        path: ["end_time"],
+      });
+    }
+  }
+
   if (data.category === "property" && !data.homeId) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -73,8 +90,8 @@ export const defaultAuctionValues: Partial<AuctionSchema> = {
   starting_price: 0,
   minimum_bid: 0,
   buyout_price: 0,
-  start_time: new Date(),
-  end_time: new Date(),
+  start_time: undefined,
+  end_time: undefined,
 
   coords: {
     x: 0,

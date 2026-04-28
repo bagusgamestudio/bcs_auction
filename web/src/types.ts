@@ -24,10 +24,8 @@ export interface Auction {
   starting_price: number;
   minimum_bid: number;
   buyout_price: number;
-  start_time: string;
-  end_time: string;
-  created_at: string;
-  updated_at: string;
+  start_time: string | null;
+  end_time: string | null;
 
   live?: {
     id: number;

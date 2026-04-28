@@ -27,6 +27,7 @@ import {
 } from "@/schemas/auction";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { useEffect, useState } from "react";
+import { formatDate } from "@/utils/date";
 
 interface AuctionFormProps {
   defaultValues?: Partial<AuctionSchema>;
@@ -53,6 +54,13 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
 
   const onSubmit = (data: AuctionSchema) => {
     const payload = isEdit ? { id: defaultValues!.id, ...data } : data;
+
+    if (payload.start_time) {
+      payload.start_time = formatDate(payload.start_time as unknown as Date) as any;
+    }
+    if (payload.end_time) {
+      payload.end_time = formatDate(payload.end_time as unknown as Date) as any;
+    }
 
     fetchNui(isEdit ? "updateAuction" : "createAuction", payload).then(
       (success) => {
@@ -179,44 +187,43 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           )}
         />
 
-        {type === "live" && (
-          <FormField
-            control={form.control}
-            name="start_time"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Start Date (Optional)</FormLabel>
-                <FormControl>
-                  <DateTimePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Now"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
         {type === "ongoing" && (
-          <FormField
-            control={form.control}
-            name="end_time"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>End Date</FormLabel>
-                <FormControl>
-                  <DateTimePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Select end date"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <>
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date *</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select start date"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date *</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select end date"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
         )}
 
         {category === "vehicle" && (

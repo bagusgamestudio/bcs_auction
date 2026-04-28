@@ -52,11 +52,14 @@ function CreateAuction(identifier, data)
         return false, "You already have an active auction"
     end
 
-    local startTime = nil
+    local startTime, endTime = nil, nil
     if data.start_time then
         startTime = Server.utils.FormatDate(data.start_time)
     end
-    local endTime = Server.utils.FormatDate(data.end_time)
+
+    if data.end_time then
+        endTime = Server.utils.FormatDate(data.end_time)
+    end
 
     local query =
     "INSERT INTO `auction` (`identifier`, `type`, `category`, `category_data`, `starting_price`, `minimum_bid`, `buyout_price`, `start_time`, `end_time`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -92,6 +95,12 @@ function GetAuction(id)
         Auctions[id] = OxMysql:single_async("SELECT * FROM `auction` WHERE `id` = ?", { id })
         if Auctions[id] then
             Auctions[id].category_data = json.decode(Auctions[id].category_data)
+            if Auctions[id].start_time then
+                Auctions[id].start_time = Server.utils.FormatDate(Auctions[id].start_time / 1000)
+            end
+            if Auctions[id].end_time then
+                Auctions[id].end_time = Server.utils.FormatDate(Auctions[id].end_time / 1000)
+            end
         end
     end
 
@@ -188,6 +197,20 @@ function UpdateAuction(data)
         table.insert(updates, "`buyout_price` = ?")
         table.insert(values, data.buyout_price)
         Auctions[data.id].buyout_price = data.buyout_price
+    end
+
+    if data.start_time ~= nil then
+        local startTime = data.start_time and Server.utils.FormatDate(data.start_time) or nil
+        table.insert(updates, "`start_time` = ?")
+        table.insert(values, startTime)
+        Auctions[data.id].start_time = startTime
+    end
+
+    if data.end_time ~= nil then
+        local endTime = data.end_time and Server.utils.FormatDate(data.end_time) or nil
+        table.insert(updates, "`end_time` = ?")
+        table.insert(values, endTime)
+        Auctions[data.id].end_time = endTime
     end
 
     Auctions[data.id].live = data.live

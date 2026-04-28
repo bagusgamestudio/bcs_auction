@@ -16,8 +16,17 @@ function CreateStage(id, category, data)
         local coords = data.coords
         coords = vec4(coords.x, coords.y, coords.z, coords.w)
         local vehicle = GetVehicleByPlate(data.vehiclePlate)
-        table.insert(stages,
-            { id = id, model = vehicle.model, coords = coords, plate = data.vehiclePlate, props = vehicle.props })
+
+        local stage = {
+            id = id,
+            model = vehicle.model,
+            coords = coords,
+            plate = data.vehiclePlate,
+            props = vehicle.props
+        }
+        table.insert(stages, stage)
+
+        TriggerZones("bcs_auction:client:LoadStage", stage)
     end
 end
 

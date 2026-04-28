@@ -4,6 +4,7 @@ import { fetchNui } from "@/utils/fetchNui";
 import { Auction } from "@/types";
 import { AuctionForm } from "@/components/auction-form";
 import { Button } from "@/components/ui/button";
+import { parseDate } from "@/utils/date";
 
 const EditPage = () => {
   const { id } = useParams();
@@ -37,6 +38,9 @@ const EditPage = () => {
     starting_price: auction.starting_price,
     minimum_bid: auction.minimum_bid,
     buyout_price: auction.buyout_price,
+
+    start_time: parseDate(auction.start_time),
+    end_time: parseDate(auction.end_time),
 
     homeId: auction.category_data?.homeId,
     vehiclePlate: auction.category_data?.vehiclePlate,

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-react";
 import { DeleteDialog } from "./index";
 import { usePlayer } from "@/hooks/usePlayer";
+import { parseDate } from "@/utils/date";
 
 interface AuctionCardProps {
   auction: Auction;
@@ -108,12 +109,12 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
               )}
             {auction.start_time && (
               <div className="mt-2 text-xs text-muted-foreground">
-                Started: {new Date(auction.start_time).toLocaleString()}
+                Started: {parseDate(auction.start_time)?.toLocaleString()}
               </div>
             )}
             {auction.end_time && (
               <div className="mt-2 text-xs text-muted-foreground">
-                Ends: {new Date(auction.end_time).toLocaleString()}
+                Ends: {parseDate(auction.end_time)?.toLocaleString()}
               </div>
             )}
           </CardContent>
