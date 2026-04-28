@@ -28,8 +28,8 @@ files {
     'modules/**/**/*.lua',
 }
 
--- ui_page 'web/dist/index.html'
-ui_page 'http://localhost:5173/'
+ui_page 'web/dist/index.html'
+-- ui_page 'http://localhost:5173/'
 
 escrow_ignore {
     'config/*.lua',

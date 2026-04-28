@@ -251,7 +251,6 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
                             z: number;
                             w: number;
                           }>("getCoords", field.value).then((data) => {
-                            console.log(JSON.stringify(data, null, 2));
                             field.onChange(data);
                           })
                         }

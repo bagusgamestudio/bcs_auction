@@ -44,8 +44,6 @@ const ViewPage = () => {
     });
   });
 
-  console.log(JSON.stringify(auction, null, 2));
-
   if (loading) return <div className="p-4">Loading...</div>;
   if (!auction) return <div className="p-4">Auction not found</div>;
 

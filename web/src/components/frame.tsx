@@ -37,8 +37,6 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
     fetchNui("closeFrame");
   });
 
-  console.log(state)
-
   return (
     <>
       <div
