@@ -115,7 +115,7 @@ function GetAuctions(auctionType, category, page, limit)
     }
 end
 
-function DeleteAuction(id, identifier)
+function DeleteAuction(id)
     local auction = GetAuction(id)
     if not auction then
         return false, "Auction not found"
@@ -189,13 +189,12 @@ function UpdateAuction(data)
         table.insert(values, data.buyout_price)
         Auctions[data.id].buyout_price = data.buyout_price
     end
-    if data.live then
-        Auctions[data.id].live = data.live
-    end
 
-    UpdateStage(auction.id, auction.category, auction.category_data)
+    Auctions[data.id].live = data.live
 
     if #updates > 0 then
+        UpdateStage(auction.id, auction.category, auction.category_data)
+
         table.insert(values, data.id)
 
         local query = "UPDATE `auction` SET " .. table.concat(updates, ", ") .. " WHERE `id` = ?"

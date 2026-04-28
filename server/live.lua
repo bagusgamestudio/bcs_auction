@@ -1,22 +1,43 @@
-local live
-local interval
+local live, interval
 
-local function NotifyArea(title, message, audioName, audioRef)
+local function NotifyArea(title, message, audioName, audioRef, duration)
     TriggerZones("bcs_auction:client:NotifyArea", {
         title = title,
         message = message,
-        duration = 5000,
+        duration = duration,
         audioName = audioName or "GO",
         audioRef = audioRef or "HUD_MINI_GAME_SOUNDSET"
     })
 end
 
 local function EndLive()
-    NotifyArea("Auction", "SOLD!", "GOLF_COMPLETE", "HUD_AWARDS")
+    NotifyArea("Auction", "SOLD!", "GOLF_COMPLETE", "HUD_AWARDS", 5000)
     TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", nil)
-    ClearInterval(interval)
+
+    if live.bids and #live.bids > 0 then
+        local winner = live.bids[#live.bids]
+        local id = live.id
+        CreateThread(function()
+            Wait(5000)
+            local success = GiveAuction(winner.identifier, GetAuction(id))
+            if success then
+                DeleteAuction(id)
+            end
+            NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.id, winner.amount), "GOLF_COMPLETE",
+                "HUD_AWARDS")
+        end)
+    end
+
+    UpdateAuction({
+        id = live.id,
+        live = nil
+    })
+
     live = nil
-    interval = nil
+    if interval then
+        ClearInterval(interval)
+        interval = nil
+    end
 end
 
 RegisterNetEvent("bcs_auction:server:StartLive", function(id)
@@ -35,7 +56,7 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
         startTime = os.time(),
         bids = {},
         state = "active",
-        deadline = os.time() + Server.config.bidTime
+        timeLeft = Server.config.bidTime
     }
 
     UpdateAuction({
@@ -44,24 +65,26 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
     })
 
     TriggerZones("bcs_auction:client:UpdateAuction", id, "live", live)
-
     NotifyArea("Auction", "Auction live started", "GO", "HUD_MINI_GAME_SOUNDSET")
 
     interval = SetInterval(function()
-        if not live then return end
+        if not live then
+            if interval then
+                ClearInterval(interval)
+                interval = nil
+            end
+            return
+        end
 
-        local now = os.time()
-        live.timeLeft = math.max(0, live.deadline - now)
+        live.timeLeft = live.timeLeft - 1
 
-        if now >= live.deadline then
+        if live.timeLeft <= 0 then
             if live.state == "active" then
                 live.state = "going_once"
-                live.deadline = now + Server.config.goingOnceTime
                 live.timeLeft = Server.config.goingOnceTime
                 NotifyArea("Auction", "Going once!", "GO", "HUD_MINI_GAME_SOUNDSET")
             elseif live.state == "going_once" then
                 live.state = "going_twice"
-                live.deadline = now + Server.config.goingTwiceTime
                 live.timeLeft = Server.config.goingTwiceTime
                 NotifyArea("Auction", "Going twice!", "GO", "HUD_MINI_GAME_SOUNDSET")
             elseif live.state == "going_twice" then
@@ -85,8 +108,12 @@ RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
         })
 
         live.state = "active"
-        live.deadline = os.time() + Server.config.bidTime
         live.timeLeft = Server.config.bidTime
+
+        UpdateAuction({
+            id = live.id,
+            live = live
+        })
 
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", live)
     end

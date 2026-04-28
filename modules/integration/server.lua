@@ -11,6 +11,20 @@ function GetVehicleByPlate(plate)
     end
 end
 
+function GiveAuction(identifier, data)
+    if data.category == 'vehicle' then
+        if Shared.framework == 'esx' then
+            local affectedRows = OxMysql:update_async(
+                "UPDATE `owned_vehicles` SET `owner` = ? WHERE `plate` = ?",
+                { identifier, data.category_data.vehiclePlate })
+
+            return affectedRows > 0
+        end
+    end
+
+    return false
+end
+
 lib.callback.register('bcs_auction:server:integration:GetVehicles', function(source)
     local player = Server.GetPlayer(source)
     local vehicles = {}
