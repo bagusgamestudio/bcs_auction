@@ -53,7 +53,10 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6 text-destructive"
-                      onClick={() => setDeleteDialogOpen(true)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteDialogOpen(true);
+                      }}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>

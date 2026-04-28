@@ -107,7 +107,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         render={({ field }) => (
           <FormItem className={`col-span-${category === "item" ? 1 : 2}`}>
             <FormLabel>{catagoryLabels[category]}</FormLabel>
-            <Select onValueChange={field.onChange}>
+            <Select onValueChange={field.onChange} value={field.value}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -140,7 +140,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue />
@@ -163,7 +163,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue />
@@ -250,7 +250,12 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
                             y: number;
                             z: number;
                             w: number;
-                          }>("getCoords", field.value).then((data) => {
+                          }>("getCoords", field.value, {
+                            x: 1.0,
+                            y: 1.0,
+                            z: 1.0,
+                            w: 1.0,
+                          }).then((data) => {
                             field.onChange(data);
                           })
                         }

@@ -39,7 +39,12 @@ export const auctionSchema = baseSchema.superRefine((data, ctx) => {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Vehicle is required",
-      path: ["plate"],
+      path: ["vehiclePlate"],
+    });
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Coordinates are required",
+      path: ["coords"],
     });
   }
   if (data.category === "item") {
@@ -47,14 +52,14 @@ export const auctionSchema = baseSchema.superRefine((data, ctx) => {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Item is required",
-        path: ["name"],
+        path: ["itemName"],
       });
     }
     if (!data.itemAmount || data.itemAmount <= 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Amount is required",
-        path: ["amount"],
+        path: ["itemAmount"],
       });
     }
   }
