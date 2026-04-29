@@ -40,9 +40,9 @@ const LiveView = ({ data }: LiveViewProps) => {
         <p className="text-muted-foreground capitalize">
           {data.category} Auction
         </p>
-        {data.live?.startTime && (
+        {data.start_time && (
           <p className="text-sm text-muted-foreground">
-            Started: {new Date(data.live?.startTime * 1000).toLocaleString()}
+            Started: {new Date(data.start_time).toLocaleString()}
           </p>
         )}
       </div>

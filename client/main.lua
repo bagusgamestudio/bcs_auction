@@ -54,7 +54,7 @@ end)
 
 RegisterNUICallback('getAuctions', function(data, cb)
     Wait(1000) -- test delay
-    local auctions = lib.callback.await('bcs_auction:server:GetAuctions', false, data.auctionType, data.category,
+    local auctions = lib.callback.await('bcs_auction:server:GetAuctions', false, data.status, data.category,
         data.page, data.limit)
 
     for i = 1, #auctions.data do

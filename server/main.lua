@@ -16,8 +16,8 @@ RegisterNetEvent('bcs_auction:server:CreateAuction', function(data)
     TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', message, created and 'success' or 'error')
 end)
 
-lib.callback.register('bcs_auction:server:GetAuctions', function(source, auctionType, category, page, limit)
-    return GetAuctions(auctionType or AuctionType.Live, category or AuctionCategory.Vehicle, page or 1, limit or 5)
+lib.callback.register('bcs_auction:server:GetAuctions', function(source, status, category, page, limit)
+    return GetAuctions(status or "active", category or AuctionCategory.Vehicle, page or 1, limit or 5)
 end)
 
 lib.callback.register('bcs_auction:server:GetAuctionById', function(source, id)
@@ -68,12 +68,12 @@ function CompleteOnGoingAuction(auctionId)
         local highestBid = auction.bids[#auction.bids]
         local success = GiveAuction(highestBid.identifier, auction)
         if success then
-            DeleteAuction(auctionId)
+            FinishAuction(auctionId)
             return true, ("Auction %s completed, winner: %s"):format(auctionId, highestBid.identifier)
         end
         return false, ("Failed to give auction to %s"):format(highestBid.identifier)
     else
-        DeleteAuction(auctionId)
+        FinishAuction(auctionId)
         return true, ("Auction %s expired with no bids"):format(auctionId)
     end
 end

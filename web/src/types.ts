@@ -26,12 +26,13 @@ export interface Auction {
   buyout_price: number;
   start_time: string | null;
   end_time: string | null;
+  finished_at: string | null;
 
   bids?: Bid[];
 
   live?: {
     id: number;
-    startTime: number;
+    state: string;
     timeLeft: number;
   };
 }

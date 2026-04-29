@@ -16,12 +16,12 @@ local tables = {
 
         `start_time` DATETIME DEFAULT NULL,
         `end_time` DATETIME DEFAULT NULL,
+        `finished_at` DATETIME DEFAULT NULL,
 
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-        PRIMARY KEY (`id`),
-        UNIQUE KEY `identifier` (`identifier`)
+        PRIMARY KEY (`id`)
     );
     ]],
     [[
@@ -59,9 +59,9 @@ function CreateAuction(identifier, data)
         }
     end
 
-    local existing = OxMysql:single_async("SELECT * FROM `auction` WHERE `identifier` = ?", { identifier })
+    local existing = OxMysql:scalar_async("SELECT COUNT(*) FROM `auction` WHERE `identifier` = ? AND `finished_at` IS NULL", { identifier })
 
-    if existing then
+    if existing > 0 then
         return false, "You already have an active auction"
     end
 
@@ -114,6 +114,9 @@ function GetAuction(id)
             if Auctions[id].end_time then
                 Auctions[id].end_time = Server.utils.FormatDate(Auctions[id].end_time / 1000)
             end
+            if Auctions[id].finished_at then
+                Auctions[id].finished_at = Server.utils.FormatDate(Auctions[id].finished_at / 1000)
+            end
             Auctions[id].bids = GetBids(id)
         end
     end
@@ -121,20 +124,50 @@ function GetAuction(id)
     return Auctions[id]
 end
 
-function GetAuctions(auctionType, category, page, limit)
-    local result = OxMysql:query_async(
-        "SELECT `id` FROM `auction` WHERE `type` = ? AND `category` = ? ORDER BY `created_at` DESC LIMIT ?, ?",
-        { auctionType, category, (page - 1) * limit, limit })
+function GetAuctions(status, category, page, limit)
+    local query = "SELECT `id` FROM `auction`"
+    local conditions = {}
+    local values = {}
+    local countValues = {}
+
+    if status == "past" then
+        table.insert(conditions, "`finished_at` IS NOT NULL")
+    elseif status == "coming_soon" then
+        table.insert(conditions, "`finished_at` IS NULL")
+        table.insert(conditions, "((`type` = 'ongoing' AND `start_time` > NOW()) OR (`type` = 'live' AND `start_time` IS NULL))")
+    elseif status == "active" then
+        table.insert(conditions, "`finished_at` IS NULL")
+        table.insert(conditions, "((`type` = 'ongoing' AND `start_time` <= NOW() AND `end_time` >= NOW()) OR (`type` = 'live' AND `start_time` IS NOT NULL))")
+    end
+
+    if category then
+        table.insert(conditions, "`category` = ?")
+        table.insert(values, category)
+        table.insert(countValues, category)
+    end
+
+    if #conditions > 0 then
+        query = query .. " WHERE " .. table.concat(conditions, " AND ")
+    end
+
+    query = query .. " ORDER BY `created_at` DESC LIMIT ?, ?"
+    table.insert(values, (page - 1) * limit)
+    table.insert(values, limit)
+
+    local result = OxMysql:query_async(query, values)
 
     for i = 1, #result do
         result[i] = GetAuction(result[i].id)
     end
 
+    local countQuery = "SELECT COUNT(*) FROM `auction`"
+    if #conditions > 0 then
+        countQuery = countQuery .. " WHERE " .. table.concat(conditions, " AND ")
+    end
 
     return {
         data = result,
-        total = OxMysql:scalar_async("SELECT COUNT(*) FROM `auction` WHERE `type` = ? AND `category` = ?",
-            { auctionType, category })
+        total = OxMysql:scalar_async(countQuery, countValues)
     }
 end
 
@@ -251,12 +284,19 @@ function GetStagesAution()
 end
 
 function GetExpiredAuctions()
-    local ids = OxMysql:query_async("SELECT `id` FROM `auction` WHERE `type` = 'ongoing' AND `end_time` < NOW()")
+    local ids = OxMysql:query_async("SELECT `id` FROM `auction` WHERE `type` = 'ongoing' AND `end_time` < NOW() AND `finished_at` IS NULL")
     local result = {}
     for i = 1, #ids do
         result[i] = GetAuction(ids[i].id)
     end
     return result
+end
+
+function FinishAuction(id)
+    OxMysql:update_async("UPDATE `auction` SET `finished_at` = NOW(), `end_time` = NOW() WHERE `id` = ?", { id })
+    Auctions[id].finished_at = Server.utils.FormatDate(os.time())
+    Auctions[id].live = nil
+    Auctions[id].bids = nil
 end
 
 function SaveBid(auctionId, identifier, amount)

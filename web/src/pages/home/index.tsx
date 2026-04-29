@@ -15,7 +15,7 @@ import {
 const HomePage = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [auctionType, setAuctionType] = useState("live");
+  const [status, setStatus] = useState("active");
   const [category, setCategory] = useState("vehicle");
 
   const fetchAuctions = async () => {
@@ -24,7 +24,7 @@ const HomePage = () => {
       const data = await fetchNui<{ data: Auction[]; total: number }>(
         "getAuctions",
         {
-          auctionType,
+          status,
           category,
           page: 1,
           limit: 4,
@@ -41,7 +41,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchAuctions();
-  }, [auctionType, category]);
+  }, [status, category]);
 
   return (
     <div className="p-4 space-y-4">
@@ -53,13 +53,14 @@ const HomePage = () => {
       </div>
 
       <div className="flex gap-2">
-        <Select value={auctionType} onValueChange={setAuctionType}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Type" />
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="live">Live</SelectItem>
-            <SelectItem value="ongoing">Ongoing</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="coming_soon">Coming Soon</SelectItem>
+            <SelectItem value="past">Past</SelectItem>
           </SelectContent>
         </Select>
 

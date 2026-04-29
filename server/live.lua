@@ -22,11 +22,15 @@ local function EndLive()
             Wait(5000)
             local success = GiveAuction(winner.identifier, GetAuction(id))
             if success then
-                DeleteAuction(id)
+                FinishAuction(id)
+                DeleteStage(id)
             end
             NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount), "GOLF_COMPLETE",
                 "HUD_AWARDS")
         end)
+    else
+        FinishAuction(live.id)
+        DeleteStage(live.id)
     end
 
     UpdateAuction({
@@ -55,7 +59,6 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
 
     live = {
         id = id,
-        startTime = os.time(),
         state = "active",
         timeLeft = Server.config.bidTime
     }
@@ -65,7 +68,8 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
     UpdateAuction({
         id = id,
         live = live,
-        bids = bids
+        bids = bids,
+        start_time = Server.utils.FormatDate(os.time())
     })
 
     TriggerZones("bcs_auction:client:UpdateAuction", id, "live", live)
