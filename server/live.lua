@@ -1,4 +1,5 @@
 local live, interval
+local bids = {}
 
 local function NotifyArea(title, message, audioName, audioRef, duration)
     TriggerZones("bcs_auction:client:NotifyArea", {
@@ -14,8 +15,8 @@ local function EndLive()
     NotifyArea("Auction", "SOLD!", "GOLF_COMPLETE", "HUD_AWARDS", 5000)
     TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", nil)
 
-    if live.bids and #live.bids > 0 then
-        local winner = live.bids[#live.bids]
+    if bids and #bids > 0 then
+        local winner = bids[#bids]
         local id = live.id
         CreateThread(function()
             Wait(5000)
@@ -23,14 +24,15 @@ local function EndLive()
             if success then
                 DeleteAuction(id)
             end
-            NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.id, winner.amount), "GOLF_COMPLETE",
+            NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount), "GOLF_COMPLETE",
                 "HUD_AWARDS")
         end)
     end
 
     UpdateAuction({
         id = live.id,
-        live = nil
+        live = nil,
+        bids = nil
     })
 
     live = nil
@@ -54,17 +56,21 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
     live = {
         id = id,
         startTime = os.time(),
-        bids = {},
         state = "active",
         timeLeft = Server.config.bidTime
     }
 
+    bids = {}
+
     UpdateAuction({
         id = id,
-        live = live
+        live = live,
+        bids = bids
     })
 
     TriggerZones("bcs_auction:client:UpdateAuction", id, "live", live)
+    TriggerZones("bcs_auction:client:UpdateAuction", id, "bids", bids)
+
     NotifyArea("Auction", "Auction live started", "GO", "HUD_MINI_GAME_SOUNDSET")
 
     interval = SetInterval(function()
@@ -97,24 +103,39 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
 end)
 
 RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
-    local source = source
     local player = Server.GetPlayer(source)
-    if live and live.id == id then
-        table.insert(live.bids, {
-            identifier = player.identifier,
-            id = source,
-            amount = amount,
-            time = os.time()
-        })
+    local auction = GetAuction(id)
+    local bid = {
+        identifier = player.identifier,
+        amount = amount,
+        time = Server.utils.FormatDate(os.time())
+    }
+    
+    SaveBid(id, player.identifier, amount)
+    
+    if auction and auction.type == "live" and live and live.id == id then
+        table.insert(bids, bid)
 
         live.state = "active"
         live.timeLeft = Server.config.bidTime
 
         UpdateAuction({
             id = live.id,
-            live = live
+            live = live,
+            bids = bids
         })
 
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", live)
+        TriggerZones("bcs_auction:client:UpdateAuction", live.id, "bids", bids)
+    else
+        local auctionBids = auction.bids or {}
+        table.insert(auctionBids, bid)
+
+        UpdateAuction({
+            id = id,
+            bids = auctionBids
+        })
+
+        TriggerZones("bcs_auction:client:UpdateAuction", id, "bids", auctionBids)
     end
 end)

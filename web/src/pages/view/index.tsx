@@ -7,6 +7,7 @@ import { usePlayer } from "@/hooks/usePlayer";
 import LiveView from "./live";
 import { useNuiEvent } from "@/hooks/useNuiEvent";
 import { parseDate } from "@/utils/date";
+import OnGoingView from "./ongoing";
 
 const ViewPage = () => {
   const { id } = useParams();
@@ -48,7 +49,18 @@ const ViewPage = () => {
   if (loading) return <div className="p-4">Loading...</div>;
   if (!auction) return <div className="p-4">Auction not found</div>;
 
-  if (auction.live) return <LiveView data={auction} />;
+  if (auction.type === "live" && auction.live)
+    return <LiveView data={auction} />;
+
+  const date = new Date();
+  const startTime = parseDate(auction.start_time);
+  const endTime = parseDate(auction.end_time);
+
+  if (startTime && endTime) {
+    if (startTime <= date && endTime >= date) {
+      return <OnGoingView data={auction} />;
+    }
+  }
 
   return (
     <div className="p-4">

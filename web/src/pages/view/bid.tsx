@@ -9,8 +9,8 @@ import { formatTime } from "@/utils/misc";
 const Bid = ({ data }: { data: Auction }) => {
   const [bidAmount, setBidAmount] = useState("");
 
-  const currentHighest = data.live?.bids?.length
-    ? Math.max(...data.live.bids.map((b) => b.amount))
+  const currentHighest = data.bids?.length
+    ? Math.max(...data.bids.map((b) => b.amount))
     : data.starting_price;
 
   const minimumBid = currentHighest + data.minimum_bid;

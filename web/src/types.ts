@@ -27,17 +27,17 @@ export interface Auction {
   start_time: string | null;
   end_time: string | null;
 
+  bids?: Bid[];
+
   live?: {
     id: number;
     startTime: number;
-    bids: Bid[];
     timeLeft: number;
   };
 }
 
 type Bid = {
-  id: number;
   amount: number;
-  date: string;
+  time: string;
   identifier: string;
 };

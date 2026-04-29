@@ -1,5 +1,5 @@
-local tableAution =
-[[
+local tables = {
+    [[
     CREATE TABLE IF NOT EXISTS `auction` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
 
@@ -23,9 +23,22 @@ local tableAution =
         PRIMARY KEY (`id`),
         UNIQUE KEY `identifier` (`identifier`)
     );
-]]
+    ]],
+    [[
+    CREATE TABLE IF NOT EXISTS `auction_bids` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `auction_id` int(11) NOT NULL,
+        `identifier` varchar(255) NOT NULL,
+        `amount` int(11) NOT NULL,
+        `time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `auction_id` (`auction_id`),
+        FOREIGN KEY (`auction_id`) REFERENCES `auction`(`id`) ON DELETE CASCADE
+    );
+    ]]
+}
 
-OxMysql:query_async(tableAution)
+OxMysql:transaction_async(tables)
 
 function CreateAuction(identifier, data)
     local categoryData = {}
@@ -101,6 +114,7 @@ function GetAuction(id)
             if Auctions[id].end_time then
                 Auctions[id].end_time = Server.utils.FormatDate(Auctions[id].end_time / 1000)
             end
+            Auctions[id].bids = GetBids(id)
         end
     end
 
@@ -214,6 +228,7 @@ function UpdateAuction(data)
     end
 
     Auctions[data.id].live = data.live
+    Auctions[data.id].bids = data.bids
 
     if #updates > 0 then
         UpdateStage(auction.id, auction.category, auction.category_data)
@@ -231,6 +246,34 @@ function GetStagesAution()
     local result = OxMysql:query_async("SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle'")
     for i = 1, #result do
         result[i].category_data = json.decode(result[i].category_data)
+    end
+    return result
+end
+
+function GetExpiredAuctions()
+    local ids = OxMysql:query_async("SELECT `id` FROM `auction` WHERE `type` = 'ongoing' AND `end_time` < NOW()")
+    local result = {}
+    for i = 1, #ids do
+        result[i] = GetAuction(ids[i].id)
+    end
+    return result
+end
+
+function SaveBid(auctionId, identifier, amount)
+    local time = Server.utils.FormatDate(os.time())
+    local query = "INSERT INTO `auction_bids` (`auction_id`, `identifier`, `amount`, `time`) VALUES(?, ?, ?, ?)"
+    local id = OxMysql:insert_async(query, { auctionId, identifier, amount, time })
+    return id > 0
+end
+
+function GetBids(auctionId)
+    local result = OxMysql:query_async(
+        "SELECT `identifier`, `amount`, `time` FROM `auction_bids` WHERE `auction_id` = ? ORDER BY `amount` ASC",
+        { auctionId })
+    for i = 1, #result do
+        if result[i].time then
+            result[i].time = Server.utils.FormatDate(result[i].time / 1000)
+        end
     end
     return result
 end
