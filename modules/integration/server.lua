@@ -37,3 +37,12 @@ lib.callback.register('bcs_auction:server:integration:GetVehicles', function(sou
 
     return vehicles
 end)
+
+function SendMessage(from, to, message)
+    if GetResourceState("lb-phone") == "started" then
+        local phoneNumberFrom = exports["lb-phone"]:GetEquippedPhoneNumber(from)
+        local phoneNumberTo = exports["lb-phone"]:GetEquippedPhoneNumber(to)
+
+        exports["lb-phone"]:SendMessage(phoneNumberFrom, phoneNumberTo, message)
+    end
+end

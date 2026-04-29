@@ -29,8 +29,19 @@ lib.callback.register('bcs_auction:server:DeleteAuction', function(source, id)
     if not player then
         return false
     end
+    local auction = GetAuction(id)
+    if not auction then
+        return false
+    end
 
     local deleted, message = DeleteAuction(id)
+
+    if deleted then
+        if player.identifier ~= auction.identifier then
+            SendMessage(player.identifier, auction.identifier, "Your auction has been deleted")
+        end
+        print(("Auction %s deleted by %s"):format(id, player.identifier))
+    end
     TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', message, deleted and 'success' or 'error')
     return deleted
 end)
@@ -86,3 +97,57 @@ lib.cron.new(Server.config.onGoingCron, function()
         print(message)
     end
 end, {})
+
+RegisterNetEvent('bcs_auction:server:Buyout', function(id)
+    local source = source
+    local player = Server.GetPlayer(source)
+    if not player then return end
+
+    local auction = GetAuction(id)
+    if not auction then
+        return TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Auction not found', 'error')
+    end
+
+    if auction.finished_at then
+        return TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Auction already finished', 'error')
+    end
+
+    if auction.buyout_price <= 0 then
+        return TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Buyout not available', 'error')
+    end
+
+    if not player.HasMoney("bank", auction.buyout_price) then
+        return TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Insufficient funds', 'error')
+    end
+
+    player.RemoveMoney("bank", auction.buyout_price)
+
+    if auction.type == "live" then
+        if auction.live and auction.live.id == id then
+            EndLive(true)
+        else
+            return TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'This auction is not live', 'error')
+        end
+    end
+
+    local success = GiveAuction(player.identifier, auction)
+
+    if success then
+        FinishAuction(id)
+        DeleteStage(id)
+
+        if auction.type == "live" then
+            TriggerZones("bcs_auction:client:NotifyArea", {
+                title = "Auction",
+                message = ("BUYOUT! Winner: %s ($%s)"):format(player.identifier, auction.buyout_price),
+                duration = 5000,
+                audioName = "GOLF_COMPLETE",
+                audioRef = "HUD_AWARDS"
+            })
+        end
+        TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Buyout successful!', 'success')
+    else
+        player.AddMoney("bank", auction.buyout_price)
+        TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Failed to give auction item', 'error')
+    end
+end)

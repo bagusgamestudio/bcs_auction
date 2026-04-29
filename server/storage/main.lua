@@ -59,7 +59,8 @@ function CreateAuction(identifier, data)
         }
     end
 
-    local existing = OxMysql:scalar_async("SELECT COUNT(*) FROM `auction` WHERE `identifier` = ? AND `finished_at` IS NULL", { identifier })
+    local existing = OxMysql:scalar_async(
+        "SELECT COUNT(*) FROM `auction` WHERE `identifier` = ? AND `finished_at` IS NULL", { identifier })
 
     if existing > 0 then
         return false, "You already have an active auction"
@@ -134,10 +135,12 @@ function GetAuctions(status, category, page, limit)
         table.insert(conditions, "`finished_at` IS NOT NULL")
     elseif status == "coming_soon" then
         table.insert(conditions, "`finished_at` IS NULL")
-        table.insert(conditions, "((`type` = 'ongoing' AND `start_time` > NOW()) OR (`type` = 'live' AND `start_time` IS NULL))")
+        table.insert(conditions,
+            "((`type` = 'ongoing' AND `start_time` > NOW()) OR (`type` = 'live' AND `start_time` IS NULL))")
     elseif status == "active" then
         table.insert(conditions, "`finished_at` IS NULL")
-        table.insert(conditions, "((`type` = 'ongoing' AND `start_time` <= NOW() AND `end_time` >= NOW()) OR (`type` = 'live' AND `start_time` IS NOT NULL))")
+        table.insert(conditions,
+            "((`type` = 'ongoing' AND `start_time` <= NOW() AND `end_time` >= NOW()) OR (`type` = 'live' AND `start_time` IS NOT NULL))")
     end
 
     if category then
@@ -276,7 +279,7 @@ function UpdateAuction(data)
 end
 
 function GetStagesAution()
-    local result = OxMysql:query_async("SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle'")
+    local result = OxMysql:query_async("SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle' AND `finished_at` IS NULL")
     for i = 1, #result do
         result[i].category_data = json.decode(result[i].category_data)
     end
@@ -284,7 +287,8 @@ function GetStagesAution()
 end
 
 function GetExpiredAuctions()
-    local ids = OxMysql:query_async("SELECT `id` FROM `auction` WHERE `type` = 'ongoing' AND `end_time` < NOW() AND `finished_at` IS NULL")
+    local ids = OxMysql:query_async(
+        "SELECT `id` FROM `auction` WHERE `type` = 'ongoing' AND `end_time` < NOW() AND `finished_at` IS NULL")
     local result = {}
     for i = 1, #ids do
         result[i] = GetAuction(ids[i].id)
@@ -295,6 +299,7 @@ end
 function FinishAuction(id)
     OxMysql:update_async("UPDATE `auction` SET `finished_at` = NOW(), `end_time` = NOW() WHERE `id` = ?", { id })
     Auctions[id].finished_at = Server.utils.FormatDate(os.time())
+    TriggerZones("bcs_auction:client:UpdateAuction", id, "finished_at", Auctions[id].finished_at)
     Auctions[id].live = nil
     Auctions[id].bids = nil
 end

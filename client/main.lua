@@ -111,6 +111,11 @@ RegisterNUICallback('placeBid', function(data, cb)
     cb(true)
 end)
 
+RegisterNUICallback('buyout', function(data, cb)
+    TriggerServerEvent('bcs_auction:server:Buyout', data.id)
+    cb(true)
+end)
+
 RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
     SendNUIMessage({
         action = 'updateAuction',

@@ -11,11 +11,12 @@ local function NotifyArea(title, message, audioName, audioRef, duration)
     })
 end
 
-local function EndLive()
+function EndLive(isBuyout)
     NotifyArea("Auction", "SOLD!", "GOLF_COMPLETE", "HUD_AWARDS", 5000)
+
     TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", nil)
 
-    if bids and #bids > 0 then
+    if not isBuyout and bids and #bids > 0 then
         local winner = bids[#bids]
         local id = live.id
         CreateThread(function()
@@ -28,7 +29,7 @@ local function EndLive()
             NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount), "GOLF_COMPLETE",
                 "HUD_AWARDS")
         end)
-    else
+    elseif not isBuyout then
         FinishAuction(live.id)
         DeleteStage(live.id)
     end
@@ -114,9 +115,9 @@ RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
         amount = amount,
         time = Server.utils.FormatDate(os.time())
     }
-    
+
     SaveBid(id, player.identifier, amount)
-    
+
     if auction and auction.type == "live" and live and live.id == id then
         table.insert(bids, bid)
 

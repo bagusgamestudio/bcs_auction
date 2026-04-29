@@ -2,12 +2,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Auction } from "@/types";
 import { fetchNui } from "@/utils/fetchNui";
 import { formatTime } from "@/utils/misc";
 
 const Bid = ({ data }: { data: Auction }) => {
   const [bidAmount, setBidAmount] = useState("");
+  const [buyoutOpen, setBuyoutOpen] = useState(false);
 
   const currentHighest = data.bids?.length
     ? Math.max(...data.bids.map((b) => b.amount))
@@ -20,6 +30,11 @@ const Bid = ({ data }: { data: Auction }) => {
     if (isNaN(amount) || amount < minimumBid) return;
     fetchNui("placeBid", { id: data.id, amount });
     setBidAmount("");
+  }
+
+  function onBuyout() {
+    fetchNui("buyout", { id: data.id });
+    setBuyoutOpen(false);
   }
 
   const timeLeft = data.live?.timeLeft || 0;
@@ -55,6 +70,27 @@ const Bid = ({ data }: { data: Auction }) => {
             Place Bid
           </Button>
         </div>
+        {data.buyout_price > 0 && (
+          <Dialog open={buyoutOpen} onOpenChange={setBuyoutOpen}>
+            <DialogTrigger asChild>
+              <Button variant="destructive" className="w-full">
+                Buyout for ${data.buyout_price.toLocaleString()}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Buyout</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to buyout for ${data.buyout_price.toLocaleString()}?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setBuyoutOpen(false)}>Cancel</Button>
+                <Button variant="destructive" onClick={onBuyout}>Confirm Buyout</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardContent>
     </Card>
   );

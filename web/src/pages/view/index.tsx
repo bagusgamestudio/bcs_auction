@@ -49,6 +49,21 @@ const ViewPage = () => {
   if (loading) return <div className="p-4">Loading...</div>;
   if (!auction) return <div className="p-4">Auction not found</div>;
 
+  if (auction.finished_at) {
+    return (
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="outline" onClick={() => navigate("/")}>
+            Back
+          </Button>
+        </div>
+        <div className="text-center text-muted-foreground py-8">
+          This auction has finished
+        </div>
+      </div>
+    );
+  }
+
   if (auction.type === "live" && auction.live)
     return <LiveView data={auction} />;
 
