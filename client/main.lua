@@ -47,9 +47,7 @@ RegisterNUICallback('createAuction', function(data, cb)
         end
     end
 
-    TriggerServerEvent('bcs_auction:server:CreateAuction', data)
-
-    cb(true)
+    cb(lib.callback.await('bcs_auction:server:CreateAuction', false, data))
 end)
 
 RegisterNUICallback('getAuctions', function(data, cb)

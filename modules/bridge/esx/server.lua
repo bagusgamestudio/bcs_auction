@@ -5,7 +5,27 @@ function Server.GetPlayer(source)
     local player = esx.GetPlayerFromId(source)
 
     return {
+        source = source,
         identifier = player.identifier,
+        HasMoney = function(account, amount)
+            return player.getAccount(account).money >= amount
+        end,
+        RemoveMoney = function(account, amount)
+            player.removeAccountMoney(account, amount)
+        end,
+        AddMoney = function(account, amount)
+            player.addAccountMoney(account, amount)
+        end
+    }
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Server.GetPlayerByIdentifier(identifier)
+    local player = esx.GetPlayerFromIdentifier(identifier)
+
+    return {
+        source = player.source,
+        identifier = identifier,
         HasMoney = function(account, amount)
             return player.getAccount(account).money >= amount
         end,

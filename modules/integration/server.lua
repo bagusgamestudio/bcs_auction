@@ -11,6 +11,31 @@ function GetVehicleByPlate(plate)
     end
 end
 
+function GiveItem(source, item, amount)
+    if GetResourceState('ox_inventory') == 'started' then
+        return exports.ox_inventory:AddItem(source, item, amount)
+    end
+
+    return false
+end
+
+function RemoveItem(source, item, amount)
+    if GetResourceState('ox_inventory') == 'started' then
+        return exports.ox_inventory:RemoveItem(source, item, amount)
+    end
+
+    return false
+end
+
+function HasItem(source, item, amount)
+    if GetResourceState('ox_inventory') == 'started' then
+        local count = exports.ox_inventory:Search(source, "count", item)
+        return count >= amount
+    end
+
+    return false
+end
+
 function GiveAuction(identifier, data)
     if data.category == 'vehicle' then
         if Shared.framework == 'esx' then
@@ -19,6 +44,24 @@ function GiveAuction(identifier, data)
                 { identifier, data.category_data.vehiclePlate })
 
             return affectedRows > 0
+        end
+    end
+
+    if data.category == 'property' then
+        if GetResourceState('bcs_housing') == 'started' then
+            local player = Server.GetPlayerByIdentifier(identifier)
+            exports.bcs_housing:RevokeOwnership(data.category_data.homeId)
+            Wait(1000)
+            exports.bcs_housing:GiveHouse(data.category_data.homeId, player.source)
+
+            return true
+        end
+    end
+
+    if data.category == 'item' then
+        if GetResourceState('ox_inventory') == 'started' then
+            local player = Server.GetPlayerByIdentifier(identifier)
+            return GiveItem(player.source, data.category_data.itemName, data.category_data.itemAmount)
         end
     end
 

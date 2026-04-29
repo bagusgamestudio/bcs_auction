@@ -4,16 +4,29 @@ end
 
 Auctions = {}
 
-RegisterNetEvent('bcs_auction:server:CreateAuction', function(data)
-    local source = source
+lib.callback.register('bcs_auction:server:CreateAuction', function(source, data)
     local player = Server.GetPlayer(source)
     if not player then
         return
     end
 
+    if data.category == AuctionCategory.Item then
+        if not HasItem(player.source, data.itemName, data.itemAmount) then
+            TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', "You don't have enough of that item",
+                'error')
+            return false
+        end
+    end
+
     local created, message = CreateAuction(player.identifier, data)
 
+    if data.category == AuctionCategory.Item then
+        RemoveItem(player.source, data.itemName, data.itemAmount)
+    end
+
     TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', message, created and 'success' or 'error')
+
+    return created
 end)
 
 lib.callback.register('bcs_auction:server:GetAuctions', function(source, status, category, page, limit)
