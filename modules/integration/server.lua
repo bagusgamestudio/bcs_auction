@@ -8,6 +8,14 @@ function GetVehicleByPlate(plate)
             model = tonumber(data.model),
             props = json.decode(data.props)
         }
+    elseif Shared.framework == 'qb' then
+        local data = OxMysql:single_async(
+            "SELECT `hash` as model, `mods` as props FROM `player_vehicles` WHERE `plate` = ?",
+            { plate })
+        return {
+            model = tonumber(data.model),
+            props = json.decode(data.props)
+        }
     end
 end
 
@@ -45,6 +53,14 @@ function GiveAuction(identifier, data)
 
             return affectedRows > 0
         end
+
+        if Shared.framework == 'qb' then
+            local affectedRows = OxMysql:update_async(
+                "UPDATE `player_vehicles` SET `citizenid` = ? WHERE `plate` = ?",
+                { identifier, data.category_data.vehiclePlate })
+
+            return affectedRows > 0
+        end
     end
 
     if data.category == 'property' then
@@ -71,11 +87,16 @@ end
 lib.callback.register('bcs_auction:server:integration:GetVehicles', function(source)
     local player = Server.GetPlayer(source)
     local vehicles = {}
-
+print(Shared.framework)
     if Shared.framework == 'esx' then
         vehicles = OxMysql:query_async(
             "SELECT `plate`, json_extract(`vehicle`, '$.model') as model FROM `owned_vehicles` WHERE `owner` = ?",
             { player.identifier })
+    elseif Shared.framework == 'qb' then
+        vehicles = OxMysql:query_async(
+            "SELECT `plate`, `hash` as model FROM `player_vehicles` WHERE `citizenid` = ?",
+            { player.identifier })
+            print(json.encode(vehicles))
     end
 
     return vehicles

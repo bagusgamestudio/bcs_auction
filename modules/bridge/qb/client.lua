@@ -10,11 +10,21 @@ local function ReOrderJob(job)
     }
 end
 
-local function ReOrderPlayerData(data)
-    return {
-        identifier = data.citizenid,
-        job = ReOrderJob(data.job),
-    }
-end
+CreateThread(function()
+    while qb.Functions.GetPlayerData().job == nil do
+        Wait(100)
+    end
+    local function ReOrderPlayerData(data)
+        return {
+            identifier = data.citizenid,
+            job = ReOrderJob(data.job),
+        }
+    end
 
-PlayerData = ReOrderPlayerData(qb.Functions.GetPlayerData())
+    PlayerData = ReOrderPlayerData(qb.Functions.GetPlayerData())
+end)
+
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(val)
+    PlayerData = val
+    PlayerData.job = ReOrderJob(PlayerData.job)
+end)
