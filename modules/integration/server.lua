@@ -87,7 +87,6 @@ end
 lib.callback.register('bcs_auction:server:integration:GetVehicles', function(source)
     local player = Server.GetPlayer(source)
     local vehicles = {}
-print(Shared.framework)
     if Shared.framework == 'esx' then
         vehicles = OxMysql:query_async(
             "SELECT `plate`, json_extract(`vehicle`, '$.model') as model FROM `owned_vehicles` WHERE `owner` = ?",
@@ -96,7 +95,6 @@ print(Shared.framework)
         vehicles = OxMysql:query_async(
             "SELECT `plate`, `hash` as model FROM `player_vehicles` WHERE `citizenid` = ?",
             { player.identifier })
-            print(json.encode(vehicles))
     end
 
     return vehicles

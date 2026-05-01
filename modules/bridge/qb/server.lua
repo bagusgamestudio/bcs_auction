@@ -7,6 +7,7 @@ function Server.GetPlayer(source)
     return {
         source = source,
         identifier = player.PlayerData.citizenid,
+        name = player.PlayerData.charinfo.firstname .. ' ' .. player.PlayerData.charinfo.lastname,
         HasMoney = function(account, amount)
             if account == 'money' then
                 account = 'cash'

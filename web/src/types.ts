@@ -41,4 +41,5 @@ type Bid = {
   amount: number;
   time: string;
   identifier: string;
+  name: string;
 };

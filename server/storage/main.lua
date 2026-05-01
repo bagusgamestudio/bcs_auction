@@ -143,7 +143,7 @@ function GetAuctions(status, category, page, limit)
             "((`type` = 'ongoing' AND `start_time` <= NOW() AND `end_time` >= NOW()) OR (`type` = 'live' AND `start_time` IS NOT NULL))")
     end
 
-    if category then
+    if category and category ~= "all" then
         table.insert(conditions, "`category` = ?")
         table.insert(values, category)
         table.insert(countValues, category)
@@ -279,7 +279,8 @@ function UpdateAuction(data)
 end
 
 function GetStagesAution()
-    local result = OxMysql:query_async("SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle' AND `finished_at` IS NULL")
+    local result = OxMysql:query_async(
+        "SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle' AND `finished_at` IS NULL")
     for i = 1, #result do
         result[i].category_data = json.decode(result[i].category_data)
     end

@@ -113,7 +113,8 @@ RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
     local bid = {
         identifier = player.identifier,
         amount = amount,
-        time = Server.utils.FormatDate(os.time())
+        time = Server.utils.FormatDate(os.time()),
+        name = player.name
     }
 
     SaveBid(id, player.identifier, amount)

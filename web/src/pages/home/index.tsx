@@ -16,7 +16,7 @@ const HomePage = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("active");
-  const [category, setCategory] = useState("vehicle");
+  const [category, setCategory] = useState("all");
 
   const fetchAuctions = async () => {
     setLoading(true);
@@ -69,6 +69,7 @@ const HomePage = () => {
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="vehicle">Vehicle</SelectItem>
             <SelectItem value="property">Property</SelectItem>
             <SelectItem value="item">Item</SelectItem>

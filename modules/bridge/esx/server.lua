@@ -7,6 +7,7 @@ function Server.GetPlayer(source)
     return {
         source = source,
         identifier = player.identifier,
+        name = player.getName(),
         HasMoney = function(account, amount)
             return player.getAccount(account).money >= amount
         end,
