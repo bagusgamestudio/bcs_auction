@@ -82,6 +82,11 @@ end)
 RegisterNUICallback('placeBid', function(data, cb)
     TriggerServerEvent('bcs_auction:server:PlaceBid', data.id, data.amount)
     cb(true)
+    if data.close then
+        SetFrame(FrameState.Hidden)
+        Wait(500)
+        SetVisible(false)
+    end
 end)
 
 RegisterNUICallback('buyout', function(data, cb)

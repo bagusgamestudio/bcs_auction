@@ -37,24 +37,73 @@ function ExitZone()
     preview = nil
 end
 
+function PreviewHelpText(show)
+    if not preview then
+        return
+    end
+    if show then
+        SendNUIMessage({
+            action = 'showHelp',
+            data = {
+                text = '~G~ To Place Minimum Bid | ~H~ To Place Custom Bid',
+                show = true
+            }
+        })
+    else
+        SendNUIMessage({
+            action = 'showHelp',
+            data = {
+                show = false
+            }
+        })
+    end
+end
+
 RegisterNetEvent("bcs_auction:client:LoadPreview", function(data)
     preview = data
     if not data then
+        PreviewHelpText(false)
         return DeleteVehicles()
     end
+    PreviewHelpText(true)
     SpawnVehicles()
 end)
+
+local function OpenAuction(min)
+    if not preview then
+        return
+    end
+    local auction = lib.callback.await('bcs_auction:server:GetAuctionById', false, preview.id)
+    SendNUIMessage({
+        action = 'showBid',
+        data = {
+            auction = auction,
+            show = true,
+            step = min and 1 or 2
+        }
+    })
+    SetNuiFocus(true, true)
+end
 
 lib.zones.poly({
     points = Shared.config.previewPoly,
     onEnter = function()
         inside = true
         TriggerServerEvent("bcs_auction:server:RequestPreview")
+        PreviewHelpText(true)
     end,
     onExit = function()
         TriggerServerEvent("bcs_auction:server:LeavePreview")
         inside = false
         ExitZone()
+        PreviewHelpText(false)
+    end,
+    inside = function()
+        if IsControlJustPressed(0, 47) then
+            OpenAuction(true)
+        elseif IsControlJustPressed(0, 74) then
+            OpenAuction()
+        end
     end
 })
 
