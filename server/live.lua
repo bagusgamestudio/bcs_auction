@@ -133,6 +133,8 @@ RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
 
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", live)
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "bids", bids)
+
+        NotifyArea("Auction", ("New bid: $%s"):format(amount), "Bid_Placed", "HUD_AWARDS", 3000)
     else
         local auctionBids = auction.bids or {}
         table.insert(auctionBids, bid)

@@ -23,7 +23,7 @@ const Bid = ({ data }: { data: Auction }) => {
     ? Math.max(...data.bids.map((b) => b.amount))
     : data.starting_price;
 
-  const minimumBid = currentHighest + data.minimum_bid;
+  const minimumBid = currentHighest + data.minimum_bid + 1;
 
   function onSubmit() {
     const amount = parseInt(bidAmount);
@@ -44,7 +44,9 @@ const Bid = ({ data }: { data: Auction }) => {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>Place Bid</CardTitle>
         {data.live?.timeLeft !== undefined && (
-          <div className={`text-2xl font-bold font-mono ${timeLeft <= 10 ? "text-red-500" : "text-yellow-500"}`}>
+          <div
+            className={`text-2xl font-bold font-mono ${timeLeft <= 10 ? "text-red-500" : "text-yellow-500"}`}
+          >
             {formatTime(timeLeft)}
           </div>
         )}
@@ -66,7 +68,10 @@ const Bid = ({ data }: { data: Auction }) => {
             onChange={(e) => setBidAmount(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSubmit()}
           />
-          <Button onClick={onSubmit} disabled={!bidAmount || parseInt(bidAmount) < minimumBid}>
+          <Button
+            onClick={onSubmit}
+            disabled={!bidAmount || parseInt(bidAmount) < minimumBid}
+          >
             Place Bid
           </Button>
         </div>
@@ -81,12 +86,17 @@ const Bid = ({ data }: { data: Auction }) => {
               <DialogHeader>
                 <DialogTitle>Confirm Buyout</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to buyout for ${data.buyout_price.toLocaleString()}?
+                  Are you sure you want to buyout for $
+                  {data.buyout_price.toLocaleString()}?
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setBuyoutOpen(false)}>Cancel</Button>
-                <Button variant="destructive" onClick={onBuyout}>Confirm Buyout</Button>
+                <Button variant="outline" onClick={() => setBuyoutOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={onBuyout}>
+                  Confirm Buyout
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
