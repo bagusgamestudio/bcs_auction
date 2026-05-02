@@ -38,7 +38,7 @@ function ExitZone()
 end
 
 function PreviewHelpText(show)
-    if not preview then
+    if show and not preview then
         return
     end
     if show then
