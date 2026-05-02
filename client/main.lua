@@ -2,6 +2,8 @@ if Shared.framework then
     lib.load(('modules.bridge.%s.client'):format(Shared.framework))
 end
 
+SpawnObject(Shared.config.podiumModel, Shared.config.coords)
+
 lib.points.new({
     coords = Shared.config.coords,
     distance = 5,
@@ -32,21 +34,6 @@ RegisterNUICallback('closeFrame', function(data, cb)
 end)
 
 RegisterNUICallback('createAuction', function(data, cb)
-    if data.category == 'vehicle' then
-        if not data.coords then
-            Notify('Auction', 'No coords provided', 'error')
-            return cb(false)
-        end
-
-        local coords = vec4(data.coords.x, data.coords.y, data.coords.z, data.coords.w)
-        local locationCoords = Shared.config.coords
-
-        if #(coords.xyz - locationCoords.xyz) > 100 then
-            Notify('Auction', 'Too far from the auction location', 'error')
-            return cb(false)
-        end
-    end
-
     cb(lib.callback.await('bcs_auction:server:CreateAuction', false, data))
 end)
 
@@ -87,18 +74,6 @@ RegisterNUICallback('getItems', function(data, cb)
     cb(GetItems())
 end)
 
-RegisterNUICallback('getCoords', function(data, cb)
-    SetNuiFocus(false, false)
-    SetFrame(FrameState.Minimized)
-    Wait(500)
-
-    cb(MarkerLocation())
-
-    Wait(100)
-    SetFrame(FrameState.Visible)
-    SetNuiFocus(true, true)
-end)
-
 RegisterNUICallback('startLive', function(data, cb)
     TriggerServerEvent('bcs_auction:server:StartLive', data)
     cb(true)
@@ -126,7 +101,7 @@ RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
 end)
 
 RegisterNetEvent("bcs_auction:client:NotifyArea", function(data)
-    if not IsInsideStage() then
+    if not IsInsidePreview() then
         return
     end
 

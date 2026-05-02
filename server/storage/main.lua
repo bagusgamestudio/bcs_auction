@@ -46,7 +46,6 @@ function CreateAuction(identifier, data)
     if data.category == "vehicle" then
         categoryData = {
             vehiclePlate = data.vehiclePlate,
-            coords = data.coords
         }
     elseif data.category == "property" then
         categoryData = {
@@ -98,8 +97,6 @@ function CreateAuction(identifier, data)
     data.start_time = startTime
     data.end_time = endTime
     Auctions[id] = data
-
-    CreateStage(id, data.category, data.category_data)
 
     return id > 0, "Auction created"
 end
@@ -183,8 +180,6 @@ function DeleteAuction(id)
     OxMysql:query_async("DELETE FROM `auction` WHERE `id` = ?", { id })
     Auctions[id] = nil
 
-    DeleteStage(id)
-
     return true, "Auction deleted"
 end
 
@@ -215,7 +210,6 @@ function UpdateAuction(data)
         if data.category == "vehicle" then
             categoryData = {
                 vehiclePlate = data.vehiclePlate,
-                coords = data.coords
             }
         elseif data.category == "property" then
             categoryData = {
@@ -267,8 +261,6 @@ function UpdateAuction(data)
     Auctions[data.id].bids = data.bids
 
     if #updates > 0 then
-        UpdateStage(auction.id, auction.category, auction.category_data)
-
         table.insert(values, data.id)
 
         local query = "UPDATE `auction` SET " .. table.concat(updates, ", ") .. " WHERE `id` = ?"
@@ -276,15 +268,6 @@ function UpdateAuction(data)
     end
 
     return true, "Auction updated"
-end
-
-function GetStagesAution()
-    local result = OxMysql:query_async(
-        "SELECT `id`, `category_data` FROM `auction` WHERE `category` = 'vehicle' AND `finished_at` IS NULL")
-    for i = 1, #result do
-        result[i].category_data = json.decode(result[i].category_data)
-    end
-    return result
 end
 
 function GetExpiredAuctions()

@@ -3,12 +3,6 @@ export interface AuctionCategoryData {
   homeName: string;
 
   vehiclePlate: string;
-  coords: {
-    x: number;
-    y: number;
-    z: number;
-    w: number;
-  };
 
   itemName: string;
   itemLabel: string;

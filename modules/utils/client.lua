@@ -1,4 +1,5 @@
 local vehicles = {}
+local objects = {}
 local deleteVehicle = DeleteVehicle
 
 function SpawnVehicle(model, coords)
@@ -23,11 +24,31 @@ function DeleteVehicle(entity)
     end
 end
 
+function SpawnObject(model, coords)
+    lib.requestModel(model)
+    local obj = CreateObject(model, coords.x, coords.y, coords.z, false, false, false)
+    while not DoesEntityExist(obj) do
+        Wait(100)
+    end
+    SetModelAsNoLongerNeeded(model)
+    SetEntityAsMissionEntity(obj, true, true)
+    SetEntityHeading(obj, coords.w)
+    FreezeEntityPosition(obj, true)
+    table.insert(objects, obj)
+    return obj
+end
+
 AddEventHandler('onResourceStop', function(resourceName)
     if resourceName == GetCurrentResourceName() then
         for _, vehicle in pairs(vehicles) do
             if DoesEntityExist(vehicle) then
                 DeleteEntity(vehicle)
+            end
+        end
+
+        for _, obj in pairs(objects) do
+            if DoesEntityExist(obj) then
+                DeleteEntity(obj)
             end
         end
     end

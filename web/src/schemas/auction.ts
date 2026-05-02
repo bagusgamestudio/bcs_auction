@@ -15,12 +15,6 @@ const baseSchema = z.object({
 
   // vehicle
   vehiclePlate: z.string().optional(),
-  coords: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number(),
-    w: z.number(),
-  }),
 
   // item
   itemName: z.string().optional(),
@@ -58,11 +52,6 @@ export const auctionSchema = baseSchema.superRefine((data, ctx) => {
       message: "Vehicle is required",
       path: ["vehiclePlate"],
     });
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Coordinates are required",
-      path: ["coords"],
-    });
   }
   if (data.category === "item") {
     if (!data.itemName) {
@@ -92,11 +81,4 @@ export const defaultAuctionValues: Partial<AuctionSchema> = {
   buyout_price: 0,
   start_time: undefined,
   end_time: undefined,
-
-  coords: {
-    x: 0,
-    y: 0,
-    z: 0,
-    w: 0,
-  },
 };

@@ -147,7 +147,6 @@ RegisterNetEvent('bcs_auction:server:Buyout', function(id)
 
     if success then
         FinishAuction(id)
-        DeleteStage(id)
 
         if auction.type == "live" then
             TriggerZones("bcs_auction:client:NotifyArea", {

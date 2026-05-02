@@ -229,53 +229,6 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         {category === "vehicle" && (
           <>
             <SelectOptions category={category} />
-            <FormField
-              control={form.control}
-              name="coords"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>Coords</FormLabel>
-                  <FormControl>
-                    <div className="grid grid-cols-5 gap-2">
-                      {Object.entries(field.value).map(([key, value]) => (
-                        <Input
-                          key={key}
-                          type="number"
-                          value={value}
-                          onChange={(e) => {
-                            field.onChange({
-                              ...field.value,
-                              [key]: Number(e.target.value),
-                            });
-                          }}
-                        />
-                      ))}
-                      <Button
-                        onClick={() =>
-                          fetchNui<{
-                            x: number;
-                            y: number;
-                            z: number;
-                            w: number;
-                          }>("getCoords", field.value, {
-                            x: 1.0,
-                            y: 1.0,
-                            z: 1.0,
-                            w: 1.0,
-                          }).then((data) => {
-                            field.onChange(data);
-                          })
-                        }
-                        type="button"
-                      >
-                        Get Coords
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </>
         )}
 

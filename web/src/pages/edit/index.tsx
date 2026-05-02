@@ -44,7 +44,6 @@ const EditPage = () => {
 
     homeId: auction.category_data?.homeId,
     vehiclePlate: auction.category_data?.vehiclePlate,
-    coords : auction.category_data?.coords,
     itemName: auction.category_data?.itemName,
     itemAmount: auction.category_data?.itemAmount,
     itemLabel: auction.category_data?.itemLabel,

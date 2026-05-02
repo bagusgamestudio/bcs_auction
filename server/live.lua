@@ -24,14 +24,12 @@ function EndLive(isBuyout)
             local success = GiveAuction(winner.identifier, GetAuction(id))
             if success then
                 FinishAuction(id)
-                DeleteStage(id)
             end
             NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount), "GOLF_COMPLETE",
                 "HUD_AWARDS")
         end)
     elseif not isBuyout then
         FinishAuction(live.id)
-        DeleteStage(live.id)
     end
 
     UpdateAuction({
@@ -45,18 +43,19 @@ function EndLive(isBuyout)
         ClearInterval(interval)
         interval = nil
     end
+
+    FinishPreview()
 end
 
 RegisterNetEvent("bcs_auction:server:StartLive", function(id)
-    if GetTotalPlayerInStages() == 0 then -- TODO change to 1
-        return TriggerClientEvent("bcs_auction:client:Notify", source, "Auction",
-            "There is no player in the auction", "error")
-    end
-
     if live then
         return TriggerClientEvent("bcs_auction:client:Notify", source, "Auction",
             "Wait for the current live auction to end", "error")
     end
+
+    local aution = GetAuction(id)
+
+    StartPreview(id, "vehicle", aution.category_data)
 
     live = {
         id = id,
@@ -83,6 +82,7 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
             if interval then
                 ClearInterval(interval)
                 interval = nil
+                FinishPreview()
             end
             return
         end
