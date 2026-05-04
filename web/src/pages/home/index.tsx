@@ -15,7 +15,7 @@ import {
 const HomePage = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("active");
+  const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("all");
 
   const fetchAuctions = async () => {
@@ -58,6 +58,7 @@ const HomePage = () => {
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="coming_soon">Coming Soon</SelectItem>
             <SelectItem value="past">Past</SelectItem>
