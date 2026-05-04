@@ -1,7 +1,6 @@
 local live, interval
 local bids = {}
-
-local function NotifyArea(title, message, audioName, audioRef, duration)
+function NotifyArea(title, message, audioName, audioRef, duration)
     TriggerZones("bcs_auction:client:NotifyArea", {
         title = title,
         message = message,
@@ -12,7 +11,7 @@ local function NotifyArea(title, message, audioName, audioRef, duration)
 end
 
 function EndLive(isBuyout)
-    NotifyArea("Auction", "SOLD!", "GOLF_COMPLETE", "HUD_AWARDS", 5000)
+    NotifyArea("Auction", "SOLD!", "GO", "HUD_MINI_GAME_SOUNDSET", 5000)
 
     TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", nil)
 
@@ -21,12 +20,23 @@ function EndLive(isBuyout)
         local id = live.id
         CreateThread(function()
             Wait(5000)
-            local success = GiveAuction(winner.identifier, GetAuction(id))
-            if success then
-                FinishAuction(id)
+            local player = Server.GetPlayerByIdentifier(winner.identifier)
+            if not player then
+                return
             end
-            NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount), "GOLF_COMPLETE",
-                "HUD_AWARDS")
+
+            if player.HasMoney("bank", winner.amount) then
+                local success = GiveAuction(winner.identifier, GetAuction(id))
+                if success then
+                    player.RemoveMoney("bank", winner.amount)
+                    FinishAuction(id)
+                end
+                NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount),
+                    "Mission_Pass_Notify", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS")
+            else
+                NotifyArea("Auction", ("Winner %s doesn't have enough money, auction failed"):format(winner.identifier),
+                    "ERROR", "HUD_FRONTEND_DEFAULT_SOUNDSET")
+            end
         end)
     elseif not isBuyout then
         FinishAuction(live.id)
@@ -109,6 +119,15 @@ end)
 
 RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
     local player = Server.GetPlayer(source)
+
+    if not player then
+        return
+    end
+
+    if not player.HasMoney("bank", amount) then
+        return TriggerClientEvent("bcs_auction:client:Notify", source, "Auction", "You don't have enough money", "error")
+    end
+
     local auction = GetAuction(id)
     local bid = {
         identifier = player.identifier,
@@ -134,7 +153,8 @@ RegisterNetEvent("bcs_auction:server:PlaceBid", function(id, amount)
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "live", live)
         TriggerZones("bcs_auction:client:UpdateAuction", live.id, "bids", bids)
 
-        NotifyArea("Auction", ("New bid: $%s"):format(amount), "Bid_Placed", "HUD_AWARDS", 3000)
+        NotifyArea("Auction", ("New bid: $%s"):format(amount), "Mission_Pass_Notify",
+            "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS")
     else
         local auctionBids = auction.bids or {}
         table.insert(auctionBids, bid)

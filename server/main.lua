@@ -149,13 +149,8 @@ RegisterNetEvent('bcs_auction:server:Buyout', function(id)
         FinishAuction(id)
 
         if auction.type == "live" then
-            TriggerZones("bcs_auction:client:NotifyArea", {
-                title = "Auction",
-                message = ("BUYOUT! Winner: %s ($%s)"):format(player.identifier, auction.buyout_price),
-                duration = 5000,
-                audioName = "GOLF_COMPLETE",
-                audioRef = "HUD_AWARDS"
-            })
+            NotifyArea("Auction", ("BUYOUT! Winner: %s ($%s)"):format(player.identifier, auction.buyout_price),
+                "Mission_Pass_Notify", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS")
         end
         TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', 'Buyout successful!', 'success')
     else
