@@ -34,7 +34,11 @@ RegisterNUICallback('closeFrame', function(data, cb)
 end)
 
 RegisterNUICallback('createAuction', function(data, cb)
-    cb(lib.callback.await('bcs_auction:server:CreateAuction', false, data))
+    local created, message = lib.callback.await('bcs_auction:server:CreateAuction', false, data)
+    cb(created)
+    if message then
+        Notify("Auction", message, created and "success" or "error")
+    end
 end)
 
 RegisterNUICallback('getAuctions', function(data, cb)
@@ -54,7 +58,11 @@ RegisterNUICallback('getAuctionById', function(data, cb)
 end)
 
 RegisterNUICallback('deleteAuction', function(data, cb)
-    cb(lib.callback.await('bcs_auction:server:DeleteAuction', false, data.id))
+    local success, message = lib.callback.await('bcs_auction:server:DeleteAuction', false, data.id)
+    cb(success)
+    if message then
+        Notify("Auction", message, success and "success" or "error")
+    end
 end)
 
 RegisterNUICallback('updateAuction', function(data, cb)

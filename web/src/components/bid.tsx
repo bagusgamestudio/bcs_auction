@@ -60,7 +60,7 @@ const BidDialog = () => {
     ? Math.max(...auction.bids.map((b) => b.amount))
     : auction.starting_price;
 
-  const minimumBid = currentHighest + auction.minimum_bid + 1;
+  const minimumBid = currentHighest + auction.minimum_bid;
 
   function onMinBidConfirm() {
     if (!auction) return;

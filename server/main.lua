@@ -10,23 +10,33 @@ lib.callback.register('bcs_auction:server:CreateAuction', function(source, data)
         return
     end
 
+    local fee = Server.config.createAuctionFee
+
+    if type(fee) == "number" and fee > 0 then
+        if not player.HasMoney("bank", fee) then
+            return false, ("You need $%s to create an auction"):format(fee)
+        end
+    end
+
     if data.category == AuctionCategory.Item then
         if not HasItem(player.source, data.itemName, data.itemAmount) then
-            TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', "You don't have enough of that item",
-                'error')
-            return false
+            return false, "You don't have enough of that item"
         end
     end
 
     local created, message = CreateAuction(player.identifier, data)
 
-    if data.category == AuctionCategory.Item then
-        RemoveItem(player.source, data.itemName, data.itemAmount)
+    if created then
+        if data.category == AuctionCategory.Item then
+            RemoveItem(player.source, data.itemName, data.itemAmount)
+        end
+
+        if type(fee) == "number" and fee > 0 then
+            player.RemoveMoney("bank", fee)
+        end
     end
 
-    TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', message, created and 'success' or 'error')
-
-    return created
+    return created, message
 end)
 
 lib.callback.register('bcs_auction:server:GetAuctions', function(source, status, category, page, limit)
@@ -44,19 +54,33 @@ lib.callback.register('bcs_auction:server:DeleteAuction', function(source, id)
     end
     local auction = GetAuction(id)
     if not auction then
-        return false
+        return false, ("Auction %s not found"):format(id)
+    end
+
+    if auction.identifier ~= player.identifier or not IsAdmin(source) then
+        return false, "You don't have permission to delete this auction"
+    end
+
+    local item, amount
+
+    if auction.category == AuctionCategory.Item then
+        item = auction.category_data.itemName
+        amount = auction.category_data.itemAmount
     end
 
     local deleted, message = DeleteAuction(id)
 
     if deleted then
+        if item then
+            GiveItem(player.source, item, amount)
+        end
+
         if player.identifier ~= auction.identifier then
             SendMessage(player.identifier, auction.identifier, "Your auction has been deleted")
         end
         print(("Auction %s deleted by %s"):format(id, player.identifier))
     end
-    TriggerClientEvent('bcs_auction:client:Notify', source, 'Auction', message, deleted and 'success' or 'error')
-    return deleted
+    return deleted, message
 end)
 
 RegisterNetEvent('bcs_auction:server:UpdateAuction', function(data)
@@ -78,7 +102,7 @@ lib.callback.register('bcs_auction:server:GetPlayer', function(source)
 
     return {
         identifier = player.identifier,
-        isAdmin = true -- TODO: Add admin check
+        isAdmin = IsAdmin(source)
     }
 end)
 

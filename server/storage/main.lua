@@ -101,6 +101,8 @@ function CreateAuction(identifier, data)
     return id > 0, "Auction created"
 end
 
+exports("CreateAuction", CreateAuction)
+
 function GetAuction(id)
     if not Auctions[id] then
         Auctions[id] = OxMysql:single_async("SELECT * FROM `auction` WHERE `id` = ?", { id })
@@ -121,6 +123,8 @@ function GetAuction(id)
 
     return Auctions[id]
 end
+
+exports("GetAuction", GetAuction)
 
 function GetAuctions(status, category, page, limit)
     local query = "SELECT `id` FROM `auction`"
@@ -171,6 +175,8 @@ function GetAuctions(status, category, page, limit)
     }
 end
 
+exports("GetAuctions", GetAuctions)
+
 function DeleteAuction(id)
     local auction = GetAuction(id)
     if not auction then
@@ -182,6 +188,8 @@ function DeleteAuction(id)
 
     return true, "Auction deleted"
 end
+
+exports("DeleteAuction", DeleteAuction)
 
 function UpdateAuction(data)
     local auction = GetAuction(data.id)
@@ -269,6 +277,8 @@ function UpdateAuction(data)
 
     return true, "Auction updated"
 end
+
+exports("UpdateAuction", UpdateAuction)
 
 function GetExpiredAuctions()
     local ids = OxMysql:query_async(

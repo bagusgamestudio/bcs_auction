@@ -23,7 +23,7 @@ const Bid = ({ data }: { data: Auction }) => {
     ? Math.max(...data.bids.map((b) => b.amount))
     : data.starting_price;
 
-  const minimumBid = currentHighest + data.minimum_bid + 1;
+  const minimumBid = currentHighest + data.minimum_bid;
 
   function onSubmit() {
     const amount = parseInt(bidAmount);

@@ -65,7 +65,7 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
 
     local aution = GetAuction(id)
 
-    StartPreview(id, "vehicle", aution.category_data)
+    StartPreview(id, aution.category, aution.category_data)
 
     live = {
         id = id,
@@ -84,6 +84,9 @@ RegisterNetEvent("bcs_auction:server:StartLive", function(id)
 
     TriggerZones("bcs_auction:client:UpdateAuction", id, "live", live)
     TriggerZones("bcs_auction:client:UpdateAuction", id, "bids", bids)
+
+    TriggerEvent("bcs_auction:server:OnLiveStart", id)
+    TriggerClientEvent("bcs_auction:client:OnLiveStart", -1, id)
 
     NotifyArea("Auction", "Auction live started", "GO", "HUD_MINI_GAME_SOUNDSET")
 
