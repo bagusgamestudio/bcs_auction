@@ -232,7 +232,24 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           </>
         )}
 
-        {category === "property" && <SelectOptions category={category} />}
+        {category === "property" && (
+          <>
+            <SelectOptions category={category} />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Image URL *</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://example.com/image.jpg" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         {category === "item" && (
           <>

@@ -12,16 +12,24 @@ function TriggerZones(event, ...)
 end
 
 function StartPreview(id, category, data)
-    if category == "vehicle" then
+    if category == AuctionCategory.Vehicle then
         local vehicle = GetVehicleByPlate(data.vehiclePlate)
 
         preview = {
             id = id,
             model = vehicle.model,
             plate = data.vehiclePlate,
-            props = vehicle.props
+            props = vehicle.props,
+            category = category
         }
 
+        TriggerZones("bcs_auction:client:LoadPreview", preview)
+    elseif category == AuctionCategory.Property then
+        preview = {
+            id = id,
+            url = data.imageUrl,
+            category = category
+        }
         TriggerZones("bcs_auction:client:LoadPreview", preview)
     end
 end

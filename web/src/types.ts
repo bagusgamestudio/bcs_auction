@@ -1,6 +1,7 @@
 export interface AuctionCategoryData {
   homeId: string;
   homeName: string;
+  imageUrl: string;
 
   vehiclePlate: string;
 

@@ -43,6 +43,7 @@ const EditPage = () => {
     end_time: parseDate(auction.end_time),
 
     homeId: auction.category_data?.homeId,
+    imageUrl: auction.category_data?.imageUrl,
     vehiclePlate: auction.category_data?.vehiclePlate,
     itemName: auction.category_data?.itemName,
     itemAmount: auction.category_data?.itemAmount,

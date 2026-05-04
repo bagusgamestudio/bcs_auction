@@ -49,7 +49,8 @@ function CreateAuction(identifier, data)
         }
     elseif data.category == "property" then
         categoryData = {
-            homeId = data.homeId
+            homeId = data.homeId,
+            imageUrl = data.imageUrl
         }
     elseif data.category == "item" then
         categoryData = {
@@ -221,7 +222,8 @@ function UpdateAuction(data)
             }
         elseif data.category == "property" then
             categoryData = {
-                homeId = data.homeId
+                homeId = data.homeId,
+                imageUrl = data.imageUrl
             }
         elseif data.category == "item" then
             categoryData = {

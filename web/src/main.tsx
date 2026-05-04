@@ -4,9 +4,10 @@ import App from "./App.tsx";
 import "./index.css";
 import { isEnvBrowser } from "./utils/misc.ts";
 import { ThemeProvider } from "./components/theme-provider.tsx";
-import { HashRouter } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import HelpText from "./components/help-text.tsx";
 import Bid from "./components/bid.tsx";
+import DUIPage from "./pages/dui.tsx";
 
 const root = document.getElementById("root")!;
 if (isEnvBrowser()) {
@@ -19,6 +20,9 @@ createRoot(root).render(
       <HelpText />
       <Bid />
       <HashRouter>
+        <Routes>
+          <Route path="/dui" element={<DUIPage />} />
+        </Routes>
         <App />
       </HashRouter>
     </ThemeProvider>

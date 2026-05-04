@@ -42,7 +42,6 @@ RegisterNUICallback('createAuction', function(data, cb)
 end)
 
 RegisterNUICallback('getAuctions', function(data, cb)
-    Wait(1000) -- test delay
     local auctions = lib.callback.await('bcs_auction:server:GetAuctions', false, data.status, data.category,
         data.page, data.limit)
 

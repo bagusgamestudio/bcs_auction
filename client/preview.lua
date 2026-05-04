@@ -60,13 +60,30 @@ function PreviewHelpText(show)
 end
 
 RegisterNetEvent("bcs_auction:client:LoadPreview", function(data)
-    preview = data
-    if not data then
+    if not data and preview then
         PreviewHelpText(false)
-        return DeleteVehicles()
+
+        if preview.category == AuctionCategory.Vehicle then
+            DeleteVehicles()
+        end
+
+        if preview.category == AuctionCategory.Property then
+            RenderPreview(false)
+        end
+
+        preview = nil
+        return
     end
+
+    preview = data
     PreviewHelpText(true)
-    SpawnVehicles()
+    if preview.category == AuctionCategory.Vehicle then
+        SpawnVehicles()
+    end
+
+    if preview.category == AuctionCategory.Property then
+        RenderPreview(true, preview.url)
+    end
 end)
 
 local function OpenAuction(min)

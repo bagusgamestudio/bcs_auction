@@ -40,6 +40,6 @@ function App() {
 export default App;
 
 debugData([{ action: "initUI", data: {} }]);
-debugData([{ action: "setPage", data: "" }]);
+debugData([{ action: "setPage", data: "dui" }]);
 debugData([{ action: "setVisible", data: true }]);
 debugData([{ action: "setPlayer", data: { identifier: "", isAdmin: false } }]);

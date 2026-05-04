@@ -12,6 +12,7 @@ const baseSchema = z.object({
 
   // property
   homeId: z.string().optional(),
+  imageUrl: z.string().optional(),
 
   // vehicle
   vehiclePlate: z.string().optional(),
@@ -44,6 +45,13 @@ export const auctionSchema = baseSchema.superRefine((data, ctx) => {
       code: z.ZodIssueCode.custom,
       message: "Property is required",
       path: ["homeId"],
+    });
+  }
+  if (data.category === "property" && !data.imageUrl) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Image URL is required for property",
+      path: ["imageUrl"],
     });
   }
   if (data.category === "vehicle" && !data.vehiclePlate) {
