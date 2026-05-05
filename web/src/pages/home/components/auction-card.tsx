@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Auction } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import {
+  Trash2,
+  Pencil,
+  Gavel,
+  Clock,
+  Timer,
+  Car,
+  Home,
+  Package,
+} from "lucide-react";
 import { DeleteDialog } from "./index";
 import { usePlayer } from "@/hooks/usePlayer";
 import { parseDate } from "@/utils/date";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface AuctionCardProps {
   auction: Auction;
@@ -23,100 +34,150 @@ const getCategoryLabel = (auction: Auction) => {
   if (auction.category === "property") {
     return data.homeName;
   }
-  return `${data.itemName} (${data.itemAmount})`;
+  return `${data.itemLabel || data.itemName} (${data.itemAmount})`;
+};
+
+const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case "vehicle":
+      return <Car className="w-16 h-16 text-cyan-400/20" />;
+    case "property":
+      return <Home className="w-16 h-16 text-cyan-400/20" />;
+    case "item":
+      return <Package className="w-16 h-16 text-cyan-400/20" />;
+    default:
+      return null;
+  }
 };
 
 export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
   const { player } = usePlayer();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const isLive =
+    auction.type === "live" && auction.live && !auction.finished_at;
+  const isActive = auction.start_time && !auction.finished_at;
 
   return (
     <>
-      <Link to={`/view/${auction.id}`}>
-        <Card className="cursor-pointer">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base capitalize">
-                {getCategoryLabel(auction)}
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <span className="text-xs px-2 py-1 bg-secondary rounded uppercase">
+      <Link to={`/view/${auction.id}`} className="block group h-full">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-cyan-500/30 transition-all duration-300 h-full flex flex-col">
+          {isLive && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute top-3 left-3">
+                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 animate-pulse">
+                  <Timer className="w-3 h-3 mr-1" />
+                  LIVE
+                </Badge>
+              </div>
+            </>
+          )}
+
+          <CardContent className="p-0 flex-1 flex flex-col">
+            <div className="relative h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+              {auction.category_data?.imageUrl && !imageError ? (
+                <img
+                  src={auction.category_data.imageUrl}
+                  alt={
+                    auction.category === "vehicle"
+                      ? auction.category_data.vehiclePlate || "Vehicle"
+                      : auction.category_data.homeName || "Property"
+                  }
+                  className={cn("w-full h-full ", auction.category === "item" || auction.category === "vehicle" ? "object-contain" : "object-cover")}
+                  onError={() => setImageError(true)}
+                />
+              ) : null}
+              <div
+                className={`${auction.category_data?.imageUrl && !imageError ? "hidden" : "flex"} items-center justify-center w-full h-full`}
+              >
+                <div
+                  className={
+                    isLive
+                      ? "group-hover:scale-110 transition-transform duration-300"
+                      : ""
+                  }
+                >
+                  {getCategoryIcon(auction.category)}
+                </div>
+              </div>
+              <div className="absolute top-3 left-3">
+                <Badge className="bg-blue-500/20 text-cyan-400 border-cyan-500/30 uppercase text-xs font-medium">
                   {auction.type}
-                </span>
-                {player?.isAdmin && (
-                  <div className="flex gap-1">
-                    <Link to={`/edit/${auction.id}`}>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                    </Link>
+                </Badge>
+              </div>
+              {player?.isAdmin && (
+                <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Link to={`/edit/${auction.id}`}>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-destructive"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setDeleteDialogOpen(true);
-                      }}
+                      className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-cyan-500/30"
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Pencil className="h-3.5 w-3.5 text-cyan-400" />
                     </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-red-500/30"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 space-y-3">
+              <div>
+                <h3 className="text-lg font-semibold text-cyan-50 group-hover:text-cyan-400 transition-colors">
+                  {getCategoryLabel(auction)}
+                </h3>
+                <p className="text-xs text-slate-400 capitalize">
+                  {auction.category}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">Starting Bid</span>
+                  <span className="text-sm font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                    ${auction.starting_price.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">Min Bid</span>
+                  <span className="text-sm font-semibold text-cyan-100">
+                    ${auction.minimum_bid.toLocaleString()}
+                  </span>
+                </div>
+                {auction.buyout_price > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                      <Gavel className="w-3 h-3" />
+                      Buyout
+                    </span>
+                    <span className="text-sm font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                      ${auction.buyout_price.toLocaleString()}
+                    </span>
                   </div>
                 )}
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between text-sm">
-              <div>
-                <span className="text-muted-foreground">Starting: </span>
-                <span className="font-medium">
-                  ${auction.starting_price.toLocaleString()}
-                </span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Min Bid: </span>
-                <span className="font-medium">
-                  ${auction.minimum_bid.toLocaleString()}
-                </span>
-              </div>
-              {auction.buyout_price > 0 && (
-                <div>
-                  <span className="text-muted-foreground">Buyout: </span>
-                  <span className="font-medium">
-                    ${auction.buyout_price.toLocaleString()}
+
+              {isActive && auction.end_time && (
+                <div className="flex items-center gap-1 text-xs text-cyan-400/80 pt-2 border-t border-slate-700/50">
+                  <Clock className="w-3 h-3" />
+                  <span>
+                    Ends: {parseDate(auction.end_time)?.toLocaleDateString()}
                   </span>
                 </div>
               )}
             </div>
-            {auction.category === "vehicle" &&
-              auction.category_data?.vehiclePlate && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Plate: {auction.category_data.vehiclePlate}
-                </div>
-              )}
-            {auction.category === "property" &&
-              auction.category_data?.homeId && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  {auction.category_data.homeId}
-                </div>
-              )}
-            {auction.category === "item" &&
-              auction.category_data?.itemAmount && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Amount: {auction.category_data.itemAmount}
-                </div>
-              )}
-            {auction.start_time && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                Started: {parseDate(auction.start_time)?.toLocaleString()}
-              </div>
-            )}
-            {auction.end_time && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                Ends: {parseDate(auction.end_time)?.toLocaleString()}
-              </div>
-            )}
           </CardContent>
         </Card>
       </Link>

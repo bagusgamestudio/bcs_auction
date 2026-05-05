@@ -47,12 +47,16 @@ const BidDialog = () => {
     });
   });
 
-  useKey("Escape", () => {
-    if (visible) {
-      fetchNui("closeFrame");
-      setVisible(false);
-    }
-  }, [visible]);
+  useKey(
+    "Escape",
+    () => {
+      if (visible) {
+        fetchNui("closeFrame");
+        setVisible(false);
+      }
+    },
+    [visible],
+  );
 
   if (auction === null) return null;
 
@@ -102,7 +106,9 @@ const BidDialog = () => {
         "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
       )}
     >
-      <Bid data={auction} />;
+      <div className="bg-background rounded-lg">
+        <Bid data={auction} />
+      </div>
     </div>
   );
 };

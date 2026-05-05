@@ -31,6 +31,12 @@ function StartPreview(id, category, data)
             category = category
         }
         TriggerZones("bcs_auction:client:LoadPreview", preview)
+    elseif category == AuctionCategory.Item then
+        preview = {
+            id = id,
+            category = category
+        }
+        TriggerZones("bcs_auction:client:LoadPreview", preview)
     end
 end
 

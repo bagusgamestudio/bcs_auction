@@ -46,7 +46,12 @@ function CreateAuction(identifier, data)
     if data.category == "vehicle" then
         categoryData = {
             vehiclePlate = data.vehiclePlate,
+            imageUrl = data.imageUrl
         }
+        local vehicle = GetVehicleByPlate(data.vehiclePlate)
+        if vehicle then
+            categoryData.vehicleModel = vehicle.model
+        end
     elseif data.category == "property" then
         categoryData = {
             homeId = data.homeId,
@@ -219,7 +224,12 @@ function UpdateAuction(data)
         if data.category == "vehicle" then
             categoryData = {
                 vehiclePlate = data.vehiclePlate,
+                imageUrl = data.imageUrl
             }
+            local vehicle = GetVehicleByPlate(data.vehiclePlate)
+            if vehicle then
+                categoryData.vehicleModel = vehicle.model
+            end
         elseif data.category == "property" then
             categoryData = {
                 homeId = data.homeId,

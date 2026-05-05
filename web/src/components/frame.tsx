@@ -41,17 +41,26 @@ const Frame = ({ children }: { children: React.ReactNode }) => {
     <>
       <div
         className={cn(
-          "bg-background",
-          "w-[1000px]",
-          "max-h-[800px]",
+          "relative",
+          "w-[1100px]",
+          "max-h-[850px]",
           "absolute top-1/2 left-1/2",
           getPositionClass(),
-          "rounded-3xl",
-          "p-4",
+          "rounded-2xl",
           "transition-transform duration-500 ease-in-out",
+          "overflow-hidden",
+          "bg-slate-900",
+          "border-2 border-cyan-500/50",
+          "shadow-[0_0_60px_rgba(0,200,255,0.2)]",
         )}
       >
-        {children}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl" />
+        <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/60 to-transparent" />
+        <div className="absolute bottom-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
+
+        <div className="relative z-10 p-6 overflow-y-auto max-h-[850px] scrollbar-thin scrollbar-thumb-cyan-500/30 scrollbar-track-transparent">
+          {children}
+        </div>
       </div>
       <DebugFrame />
     </>
@@ -66,7 +75,9 @@ const DebugFrame = () => {
   return (
     <div className="flex gap-2 mt-4 absolute left-1/2 top-0 transform -translate-x-1/2">
       <Button
-        className="button-dashed"
+        variant="outline"
+        size="sm"
+        className="border-cyan-500/30 hover:bg-cyan-500/10"
         onClick={() => {
           debugData([{ action: "setFrameState", data: FrameState.Visible }]);
         }}
@@ -74,7 +85,9 @@ const DebugFrame = () => {
         Show
       </Button>
       <Button
-        className="button-dashed"
+        variant="outline"
+        size="sm"
+        className="border-cyan-500/30 hover:bg-cyan-500/10"
         onClick={() => {
           debugData([{ action: "setFrameState", data: FrameState.Minimized }]);
         }}
@@ -82,7 +95,9 @@ const DebugFrame = () => {
         Minimize
       </Button>
       <Button
-        className="button-dashed"
+        variant="outline"
+        size="sm"
+        className="border-cyan-500/30 hover:bg-cyan-500/10"
         onClick={() => {
           debugData([{ action: "setFrameState", data: FrameState.Hidden }]);
         }}

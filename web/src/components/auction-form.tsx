@@ -28,6 +28,7 @@ import {
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { useEffect, useState } from "react";
 import { formatDate } from "@/utils/date";
+import { DollarSign, Tag, Clock, Image, Hash } from "lucide-react";
 
 interface AuctionFormProps {
   defaultValues?: Partial<AuctionSchema>;
@@ -56,7 +57,9 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
     const payload = isEdit ? { id: defaultValues!.id, ...data } : data;
 
     if (payload.start_time) {
-      payload.start_time = formatDate(payload.start_time as unknown as Date) as any;
+      payload.start_time = formatDate(
+        payload.start_time as unknown as Date,
+      ) as any;
     }
     if (payload.end_time) {
       payload.end_time = formatDate(payload.end_time as unknown as Date) as any;
@@ -114,12 +117,17 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         name={getFormFieldName(category)}
         render={({ field }) => (
           <FormItem className={`col-span-${category === "item" ? 1 : 2}`}>
-            <FormLabel>{catagoryLabels[category]}</FormLabel>
+            <FormLabel className="text-slate-300">
+              <Tag className="w-3.5 h-3.5 inline mr-1.5" />
+              {catagoryLabels[category]}
+            </FormLabel>
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
+              <FormControl>
+                <SelectTrigger className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400">
+                  <SelectValue />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent className="bg-slate-800 border-cyan-500/30">
                 <SelectGroup>
                   {options.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
@@ -147,14 +155,14 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel className="text-slate-300">Category</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400">
                     <SelectValue />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-slate-800 border-cyan-500/30">
                   <SelectItem value="vehicle">Vehicle</SelectItem>
                   <SelectItem value="property">Property</SelectItem>
                   <SelectItem value="item">Item</SelectItem>
@@ -170,14 +178,14 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type</FormLabel>
+              <FormLabel className="text-slate-300">Type</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400">
                     <SelectValue />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-slate-800 border-cyan-500/30">
                   <SelectItem value="live">Live</SelectItem>
                   <SelectItem value="ongoing">Ongoing</SelectItem>
                 </SelectContent>
@@ -194,7 +202,10 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
               name="start_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start Date *</FormLabel>
+                  <FormLabel className="text-slate-300">
+                    <Clock className="w-3.5 h-3.5 inline mr-1.5" />
+                    Start Date *
+                  </FormLabel>
                   <FormControl>
                     <DateTimePicker
                       value={field.value}
@@ -211,7 +222,10 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
               name="end_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Date *</FormLabel>
+                  <FormLabel className="text-slate-300">
+                    <Clock className="w-3.5 h-3.5 inline mr-1.5" />
+                    End Date *
+                  </FormLabel>
                   <FormControl>
                     <DateTimePicker
                       value={field.value}
@@ -226,12 +240,6 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           </>
         )}
 
-        {category === "vehicle" && (
-          <>
-            <SelectOptions category={category} />
-          </>
-        )}
-
         {category === "property" && (
           <>
             <SelectOptions category={category} />
@@ -240,9 +248,42 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
               name="imageUrl"
               render={({ field }) => (
                 <FormItem className="col-span-2">
-                  <FormLabel>Image URL *</FormLabel>
+                  <FormLabel className="text-slate-300">
+                    <Image className="w-3.5 h-3.5 inline mr-1.5" />
+                    Image URL (Optional)
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://example.com/image.jpg" />
+                    <Input
+                      {...field}
+                      placeholder="https://example.com/image.jpg"
+                      className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
+        {category === "vehicle" && (
+          <>
+            <SelectOptions category={category} />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel className="text-slate-300">
+                    <Image className="w-3.5 h-3.5 inline mr-1.5" />
+                    Image URL (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="https://example.com/vehicle.jpg"
+                      className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -259,12 +300,16 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
               name="itemAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel className="text-slate-300">
+                    <Hash className="w-3.5 h-3.5 inline mr-1.5" />
+                    Amount
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
+                      className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
                     />
                   </FormControl>
                   <FormMessage />
@@ -279,12 +324,16 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           name="starting_price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Starting Price</FormLabel>
+              <FormLabel className="text-slate-300">
+                <DollarSign className="w-3.5 h-3.5 inline mr-1.5" />
+                Starting Price
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
+                  className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
                 />
               </FormControl>
               <FormMessage />
@@ -297,12 +346,16 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           name="minimum_bid"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Minimum Bid</FormLabel>
+              <FormLabel className="text-slate-300">
+                <DollarSign className="w-3.5 h-3.5 inline mr-1.5" />
+                Minimum Bid
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
+                  className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
                 />
               </FormControl>
               <FormMessage />
@@ -315,7 +368,10 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
           name="buyout_price"
           render={({ field }) => (
             <FormItem className="col-span-2">
-              <FormLabel>Buyout Price (Optional)</FormLabel>
+              <FormLabel className="text-slate-300">
+                <DollarSign className="w-3.5 h-3.5 inline mr-1.5" />
+                Buyout Price (Optional)
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -325,6 +381,7 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
                       e.target.value ? Number(e.target.value) : undefined,
                     )
                   }
+                  className="bg-slate-800/50 border-cyan-500/30 focus:border-cyan-400"
                 />
               </FormControl>
               <FormMessage />
@@ -333,7 +390,10 @@ export const AuctionForm = ({ defaultValues, onSuccess }: AuctionFormProps) => {
         />
 
         <div className="col-span-2">
-          <Button type="submit" className="w-full">
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0"
+          >
             {isEdit ? "Update Auction" : "Create Auction"}
           </Button>
         </div>
