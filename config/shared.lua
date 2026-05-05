@@ -23,8 +23,8 @@ return {
     },
     previewDUI = {
         enabled = true,
-        coords = vec4(-324.5034, -1022.4312, 33.35, 337.7437),
-        width = 4.6,
-        height = 2.3,
+        coords = vec4(-324.5034, -1022.4312, 32.35, 337.7437),
+        width = 2.3,
+        height = 1.15,
     }
 }
