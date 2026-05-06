@@ -58,23 +58,16 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
   const isLive =
     auction.type === "live" && auction.live && !auction.finished_at;
   const isActive = auction.start_time && !auction.finished_at;
+  const isSold = auction.finished_at && auction.sold_to;
+  const isExpired = auction.finished_at && !auction.sold_to;
 
   return (
     <>
       <Link to={`/view/${auction.id}`} className="block group h-full">
         <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-cyan-500/30 transition-all duration-300 h-full flex flex-col">
           {isLive && (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute top-3 left-3">
-                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 animate-pulse">
-                  <Timer className="w-3 h-3 mr-1" />
-                  LIVE
-                </Badge>
-              </div>
-            </>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           )}
-
           <CardContent className="p-0 flex-1 flex flex-col">
             <div className="relative h-32 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
               {auction.category_data?.imageUrl && !imageError ? (
@@ -102,22 +95,43 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
                   {getCategoryIcon(auction.category)}
                 </div>
               </div>
-              <div className="absolute top-3 left-3">
-                <Badge className="bg-blue-500/20 text-cyan-400 border-cyan-500/30 uppercase text-xs font-medium">
-                  {auction.type}
-                </Badge>
+              <div className="absolute top-3 left-3 flex gap-1">
+                {!isLive && (
+                  <Badge className="bg-blue-500/20 text-cyan-400 border-cyan-500/30 uppercase text-xs font-medium">
+                    {auction.type}
+                  </Badge>
+                )}
+                {isSold && (
+                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                    <Gavel className="w-3 h-3 mr-1" />
+                    SOLD
+                  </Badge>
+                )}
+                {isExpired && (
+                  <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30">
+                    EXPIRED
+                  </Badge>
+                )}
+                {isLive && (
+                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30 animate-pulse">
+                    <Timer className="w-3 h-3 mr-1" />
+                    LIVE
+                  </Badge>
+                )}
               </div>
               {player?.isAdmin && (
                 <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Link to={`/edit/${auction.id}`}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-cyan-500/30"
-                    >
-                      <Pencil className="h-3.5 w-3.5 text-cyan-400" />
-                    </Button>
-                  </Link>
+                  {!isSold && !isExpired && (
+                    <Link to={`/edit/${auction.id}`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-cyan-500/30"
+                      >
+                        <Pencil className="h-3.5 w-3.5 text-cyan-400" />
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -164,6 +178,15 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
                     </span>
                     <span className="text-sm font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
                       ${auction.buyout_price.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {isSold && auction.final_price && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400">Final Price</span>
+                    <span className="text-sm font-bold bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                      ${auction.final_price.toLocaleString()}
                     </span>
                   </div>
                 )}

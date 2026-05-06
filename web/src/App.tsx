@@ -8,7 +8,6 @@ import EditPage from "./pages/edit";
 import Frame from "@/components/frame";
 import HomePage from "./pages/home";
 import { PlayerProvider } from "./hooks/usePlayer";
-import { fetchNui } from "./utils/fetchNui";
 import { Config } from "./store/config";
 
 function App() {
@@ -21,7 +20,7 @@ function App() {
 
   useNuiEvent<boolean>("setVisible", setVisible);
 
-  fetchNui<{ config: Record<string, any> }>("ready").then(({ config }) => {
+  useNuiEvent("setConfig", (config: Record<string, any>) => {
     Object.keys(config).forEach((key) => {
       Config[key] = config[key];
     });

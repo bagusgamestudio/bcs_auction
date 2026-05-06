@@ -29,13 +29,14 @@ function EndLive(isBuyout)
                 local success = GiveAuction(winner.identifier, GetAuction(id))
                 if success then
                     player.RemoveMoney("bank", winner.amount)
-                    FinishAuction(id)
+                    FinishAuction(id, winner.identifier, winner.amount)
                 end
                 NotifyArea("Auction", ("WINNER: %s ($%s)"):format(winner.identifier, winner.amount),
                     "Mission_Pass_Notify", "DLC_HEISTS_GENERAL_FRONTEND_SOUNDS")
             else
                 NotifyArea("Auction", ("Winner %s doesn't have enough money, auction failed"):format(winner.identifier),
                     "ERROR", "HUD_FRONTEND_DEFAULT_SOUNDSET")
+                FinishAuction(id)
             end
         end)
     elseif not isBuyout then

@@ -64,6 +64,7 @@ const ViewPage = () => {
   );
 
   if (auction.finished_at) {
+    const isSold = auction.sold_to;
     return (
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -77,11 +78,24 @@ const ViewPage = () => {
           </Button>
         </div>
         <div className="text-center py-16">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-            <Gavel className="w-8 h-8 text-green-400" />
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isSold ? "bg-blue-500/20" : "bg-slate-500/20"}`}>
+            <Gavel className={`w-8 h-8 ${isSold ? "text-blue-400" : "text-slate-400"}`} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-300 mb-2">Auction Finished</h2>
-          <p className="text-slate-400">This auction has ended</p>
+          <h2 className={`text-2xl font-bold mb-2 ${isSold ? "text-blue-400" : "text-slate-300"}`}>
+            {isSold ? "Auction Sold" : "Auction Expired"}
+          </h2>
+          {isSold ? (
+            <div className="space-y-2 mt-4">
+              <p className="text-slate-400">This auction was sold for</p>
+              {auction.final_price && (
+                <p className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-500 bg-clip-text text-transparent">
+                  ${auction.final_price.toLocaleString()}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-slate-400 mt-2">No bids were received</p>
+          )}
         </div>
       </div>
     );

@@ -37,6 +37,56 @@ function ExitZone()
     preview = nil
 end
 
+local function OpenAuction(min)
+    if not preview then
+        return
+    end
+    local auction = lib.callback.await('bcs_auction:server:GetAuctionById', false, preview.id)
+    SendNUIMessage({
+        action = 'showBid',
+        data = {
+            auction = auction,
+            show = true,
+            step = min and 1 or 2
+        }
+    })
+    SetNuiFocus(true, true)
+end
+
+local keybindMin = lib.addKeybind({
+    name = 'auction_min_bid',
+    description = 'Open Min Bid',
+    defaultKey = 'G',
+    onPressed = function(self)
+        if IsInsidePreview() then
+            OpenAuction(true)
+        end
+    end,
+})
+
+local keybindCustom = lib.addKeybind({
+    name = 'auction_custom_bid',
+    description = 'Open Custom Bid',
+    defaultKey = 'H',
+    onPressed = function(self)
+        if IsInsidePreview() then
+            OpenAuction()
+        end
+    end,
+})
+
+local keybindView = lib.addKeybind({
+    name = 'auction_view',
+    description = 'Open Auction',
+    defaultKey = 'J',
+    onPressed = function(self)
+        if IsInsidePreview() and preview then
+            SetVisible(true, 'view/' .. preview.id)
+            SetFrame(FrameState.Visible)
+        end
+    end,
+})
+
 function PreviewHelpText(show)
     if show and not preview then
         return
@@ -45,7 +95,8 @@ function PreviewHelpText(show)
         SendNUIMessage({
             action = 'showHelp',
             data = {
-                text = '~G~ To Place Minimum Bid | ~H~ To Place Custom Bid',
+                text = ('~%s~ To Place Minimum Bid | ~%s~ To Place Custom Bid | ~%s~ To View Auction'):format(
+                    keybindMin.currentKey, keybindCustom.currentKey, keybindView.currentKey),
                 show = true
             }
         })
@@ -86,24 +137,9 @@ RegisterNetEvent("bcs_auction:client:LoadPreview", function(data)
     end
 end)
 
-local function OpenAuction(min)
-    if not preview then
-        return
-    end
-    local auction = lib.callback.await('bcs_auction:server:GetAuctionById', false, preview.id)
-    SendNUIMessage({
-        action = 'showBid',
-        data = {
-            auction = auction,
-            show = true,
-            step = min and 1 or 2
-        }
-    })
-    SetNuiFocus(true, true)
-end
-
 lib.zones.poly({
     points = Shared.config.previewPoly,
+    thickness = 6,
     onEnter = function()
         inside = true
         TriggerServerEvent("bcs_auction:server:RequestPreview")
@@ -114,13 +150,6 @@ lib.zones.poly({
         inside = false
         ExitZone()
         PreviewHelpText(false)
-    end,
-    inside = function()
-        if IsControlJustPressed(0, 47) then
-            OpenAuction(true)
-        elseif IsControlJustPressed(0, 74) then
-            OpenAuction()
-        end
     end
 })
 

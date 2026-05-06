@@ -17,6 +17,8 @@ local tables = {
         `start_time` DATETIME DEFAULT NULL,
         `end_time` DATETIME DEFAULT NULL,
         `finished_at` DATETIME DEFAULT NULL,
+        `sold_to` varchar(255) DEFAULT NULL,
+        `final_price` int(11) DEFAULT NULL,
 
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -203,6 +205,10 @@ function UpdateAuction(data)
         return false, "Auction not found"
     end
 
+    if auction.finished_at then
+        return false, "Cannot edit a finished auction"
+    end
+
     local updates = {}
     local values = {}
 
@@ -302,8 +308,16 @@ function GetExpiredAuctions()
     return result
 end
 
-function FinishAuction(id)
-    OxMysql:update_async("UPDATE `auction` SET `finished_at` = NOW(), `end_time` = NOW() WHERE `id` = ?", { id })
+function FinishAuction(id, winnerIdentifier, finalPrice)
+    if winnerIdentifier and finalPrice then
+        OxMysql:update_async("UPDATE `auction` SET `finished_at` = NOW(), `end_time` = NOW(), `sold_to` = ?, `final_price` = ? WHERE `id` = ?", { winnerIdentifier, finalPrice, id })
+        Auctions[id].sold_to = winnerIdentifier
+        Auctions[id].final_price = finalPrice
+        TriggerZones("bcs_auction:client:UpdateAuction", id, "sold_to", winnerIdentifier)
+        TriggerZones("bcs_auction:client:UpdateAuction", id, "final_price", finalPrice)
+    else
+        OxMysql:update_async("UPDATE `auction` SET `finished_at` = NOW(), `end_time` = NOW() WHERE `id` = ?", { id })
+    end
     Auctions[id].finished_at = Server.utils.FormatDate(os.time())
     TriggerZones("bcs_auction:client:UpdateAuction", id, "finished_at", Auctions[id].finished_at)
     Auctions[id].live = nil

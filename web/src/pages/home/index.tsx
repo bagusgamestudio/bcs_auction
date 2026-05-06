@@ -37,7 +37,7 @@ const HomePage = () => {
         { data: [], total: 0 },
       );
       setAuctions(data.data || []);
-      setTotalPages(data.total);
+      setTotalPages(Math.ceil(data.total / 4));
     } catch (error) {
       console.error("Failed to fetch auctions:", error);
     } finally {

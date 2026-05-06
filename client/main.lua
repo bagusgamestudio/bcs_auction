@@ -4,6 +4,13 @@ end
 
 SpawnObject(Shared.config.podiumModel, Shared.config.coords)
 
+SetTimeout(1000, function()
+    SendNUIMessage({
+        action = 'setConfig',
+        data = Client.config.ui
+    })
+end)
+
 lib.points.new({
     coords = Shared.config.coords,
     distance = 5,
@@ -25,10 +32,6 @@ lib.points.new({
         end
     end
 })
-
-RegisterNUICallback('ready', function(data, cb)
-    cb(Client.config.ui)
-end)
 
 RegisterNUICallback('closeFrame', function(data, cb)
     SetFrame(FrameState.Hidden)

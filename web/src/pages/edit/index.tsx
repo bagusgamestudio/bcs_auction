@@ -44,6 +44,16 @@ const EditPage = () => {
     </div>
   );
 
+  if (auction.finished_at) return (
+    <div className="p-8 text-center">
+      <p className="text-slate-400">Cannot edit a finished auction</p>
+      <Button className="mt-4" onClick={() => navigate("/")}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Auctions
+      </Button>
+    </div>
+  );
+
   const defaultValues = {
     id: auction.id,
     category: auction.category,

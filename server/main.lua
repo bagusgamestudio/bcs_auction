@@ -114,9 +114,19 @@ function CompleteOnGoingAuction(auctionId)
 
     if auction.bids and #auction.bids > 0 then
         local highestBid = auction.bids[#auction.bids]
+        local player = Server.GetPlayerByIdentifier(highestBid.identifier)
+        if not player then
+            return false, ("Player %s not found"):format(highestBid.identifier)
+        end
+
+        if not player.HasMoney("bank", highestBid.amount) then
+            return false, ("Player %s doesn't have enough money"):format(highestBid.identifier)
+        end
+
         local success = GiveAuction(highestBid.identifier, auction)
         if success then
-            FinishAuction(auctionId)
+            player.RemoveMoney("bank", highestBid.amount)
+            FinishAuction(auctionId, highestBid.identifier, highestBid.amount)
             return true, ("Auction %s completed, winner: %s"):format(auctionId, highestBid.identifier)
         end
         return false, ("Failed to give auction to %s"):format(highestBid.identifier)
@@ -170,7 +180,7 @@ RegisterNetEvent('bcs_auction:server:Buyout', function(id)
     local success = GiveAuction(player.identifier, auction)
 
     if success then
-        FinishAuction(id)
+        FinishAuction(id, player.identifier, auction.buyout_price)
 
         if auction.type == "live" then
             NotifyArea("Auction", ("BUYOUT! Winner: %s ($%s)"):format(player.identifier, auction.buyout_price),

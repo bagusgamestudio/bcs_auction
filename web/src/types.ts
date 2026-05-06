@@ -22,6 +22,8 @@ export interface Auction {
   start_time: string | null;
   end_time: string | null;
   finished_at: string | null;
+  sold_to?: string;
+  final_price?: number;
 
   bids?: Bid[];
 
