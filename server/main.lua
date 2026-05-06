@@ -10,7 +10,7 @@ lib.callback.register('bcs_auction:server:CreateAuction', function(source, data)
         return
     end
 
-    local fee = Server.config.createAuctionFee
+    local fee = Shared.config.createAuctionFee
 
     if type(fee) == "number" and fee > 0 then
         if not player.HasMoney("bank", fee) then

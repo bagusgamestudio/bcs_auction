@@ -1,6 +1,10 @@
 return {
     coords = vec4(-324.0379, -1020.6269, 29.3851, 339.1947),
     podiumModel = "kx_prop_podium1",
+
+    ---@type false | number
+    createAuctionFee = 100, -- false or amount to charge players when they create an auction
+
     podiumPreviews = {
         {
             coords = vec4(-8.107452, 5.562805, 1.778109, -28.649384),

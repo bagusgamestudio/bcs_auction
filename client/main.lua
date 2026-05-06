@@ -26,6 +26,10 @@ lib.points.new({
     end
 })
 
+RegisterNUICallback('ready', function(data, cb)
+    cb(Client.config.ui)
+end)
+
 RegisterNUICallback('closeFrame', function(data, cb)
     SetFrame(FrameState.Hidden)
     Wait(500)
