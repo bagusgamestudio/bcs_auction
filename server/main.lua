@@ -106,6 +106,38 @@ lib.callback.register('bcs_auction:server:GetPlayer', function(source)
     }
 end)
 
+lib.callback.register('bcs_auction:server:RecoverAuction', function(source, id)
+    local player = Server.GetPlayer(source)
+    if not player then
+        return false, "Player not found"
+    end
+
+    local auction = GetAuction(id)
+    if not auction then
+        return false, "Auction not found"
+    end
+
+    if auction.identifier ~= player.identifier then
+        return false, "You can only recover your own auctions"
+    end
+
+    local success, message = RecoverAuction(id)
+    if success then
+        if auction.category == AuctionCategory.Item then
+            local success = GiveItem(player.source, auction.category_data.itemName, auction.category_data.itemAmount)
+            if success then
+                return true, "Item recovered successfully"
+            else
+                OxMysql:update_async("UPDATE `auction` SET `recovered` = 0 WHERE `id` = ?", { id })
+                Auctions[id].recovered = false
+                return false, "Failed to give item back"
+            end
+        end
+    end
+
+    return success, message
+end)
+
 function CompleteOnGoingAuction(auctionId)
     local auction = GetAuction(auctionId)
     if not auction then

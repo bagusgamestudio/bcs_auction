@@ -24,6 +24,7 @@ export interface Auction {
   finished_at: string | null;
   sold_to?: string;
   final_price?: number;
+  recovered?: boolean;
 
   bids?: Bid[];
 

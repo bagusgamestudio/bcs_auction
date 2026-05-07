@@ -17,6 +17,7 @@ import {
   Home,
   Package,
   Search,
+  RefreshCw,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ const ViewPage = () => {
   const [auction, setAuction] = useState<Auction | null>(null);
   const [loading, setLoading] = useState(true);
   const { player } = usePlayer();
+  const [recovering, setRecovering] = useState(false);
 
   useEffect(() => {
     const fetchAuction = async () => {
@@ -76,6 +78,28 @@ const ViewPage = () => {
 
   if (auction.finished_at) {
     const isSold = auction.sold_to;
+    const isExpired = !isSold;
+    const canRecover =
+      isExpired &&
+      auction.category === "item" &&
+      auction.identifier === player?.identifier &&
+      !auction.recovered;
+
+    const handleRecover = async () => {
+      setRecovering(true);
+      try {
+        const success = await fetchNui("recoverAuction", { id: auction.id }, true);
+        if (success) {
+          const data = await fetchNui<Auction>("getAuctionById", {
+            id: Number(id),
+          });
+          setAuction(data || null);
+        }
+      } finally {
+        setRecovering(false);
+      }
+    };
+
     return (
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -87,6 +111,16 @@ const ViewPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Auctions
           </Button>
+          {canRecover && (
+            <Button
+              onClick={handleRecover}
+              disabled={recovering}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${recovering ? "animate-spin" : ""}`} />
+              Recover Item
+            </Button>
+          )}
         </div>
         <div className="text-center py-16">
           <div
@@ -109,7 +143,15 @@ const ViewPage = () => {
               )}
             </div>
           ) : (
-            <p className="text-slate-400 mt-2">No bids were received</p>
+            <div className="space-y-2 mt-4">
+              <p className="text-slate-400">No bids were received</p>
+              {auction.recovered && (
+                <p className="text-sm text-green-400 flex items-center justify-center gap-1">
+                  <RefreshCw className="w-4 h-4" />
+                  Item has been recovered
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>

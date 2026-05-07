@@ -12,12 +12,14 @@ import {
   Car,
   Home,
   Package,
+  RefreshCw,
 } from "lucide-react";
 import { DeleteDialog } from "./index";
 import { usePlayer } from "@/hooks/usePlayer";
 import { parseDate } from "@/utils/date";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { fetchNui } from "@/utils/fetchNui";
 
 interface AuctionCardProps {
   auction: Auction;
@@ -54,12 +56,31 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
   const { player } = usePlayer();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [recovering, setRecovering] = useState(false);
 
   const isLive =
     auction.type === "live" && auction.live && !auction.finished_at;
   const isActive = auction.start_time && !auction.finished_at;
   const isSold = auction.finished_at && auction.sold_to;
   const isExpired = auction.finished_at && !auction.sold_to;
+  const canRecover =
+    isExpired &&
+    auction.category === "item" &&
+    auction.identifier === player?.identifier &&
+    !auction.recovered;
+
+  const handleRecover = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setRecovering(true);
+    try {
+      const success = await fetchNui("recoverAuction", { id: auction.id }, true);
+      if (success) {
+        onRefresh();
+      }
+    } finally {
+      setRecovering(false);
+    }
+  };
 
   return (
     <>
@@ -119,9 +140,9 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
                   </Badge>
                 )}
               </div>
-              {player?.isAdmin && (
+              {(player?.isAdmin || canRecover) && (
                 <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {!isSold && !isExpired && (
+                  {player?.isAdmin && !isSold && !isExpired && (
                     <Link to={`/edit/${auction.id}`}>
                       <Button
                         variant="ghost"
@@ -132,17 +153,30 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
                       </Button>
                     </Link>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-red-500/30"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-red-400" />
-                  </Button>
+                  {canRecover && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-green-500/30"
+                      onClick={handleRecover}
+                      disabled={recovering}
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 text-green-400 ${recovering ? "animate-spin" : ""}`} />
+                    </Button>
+                  )}
+                  {player?.isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 bg-slate-800/80 hover:bg-slate-700 border border-red-500/30"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

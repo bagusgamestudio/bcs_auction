@@ -19,6 +19,7 @@ local tables = {
         `finished_at` DATETIME DEFAULT NULL,
         `sold_to` varchar(255) DEFAULT NULL,
         `final_price` int(11) DEFAULT NULL,
+        `recovered` tinyint(1) DEFAULT 0,
 
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -342,6 +343,36 @@ function GetBids(auctionId)
     end
     return result
 end
+
+function RecoverAuction(id)
+    local auction = GetAuction(id)
+    if not auction then
+        return false, "Auction not found"
+    end
+
+    if not auction.finished_at then
+        return false, "Auction is not finished"
+    end
+
+    if auction.sold_to then
+        return false, "Auction was sold, cannot recover"
+    end
+
+    if auction.recovered then
+        return false, "Auction already recovered"
+    end
+
+    if auction.category ~= AuctionCategory.Item then
+        return false, "Can only recover item auctions"
+    end
+
+    OxMysql:update_async("UPDATE `auction` SET `recovered` = 1 WHERE `id` = ?", { id })
+    Auctions[id].recovered = true
+
+    return true, "Auction marked for recovery"
+end
+
+exports("RecoverAuction", RecoverAuction)
 
 -- RegisterCommand('testaution', function()
 --     local start = GetGameTimer()

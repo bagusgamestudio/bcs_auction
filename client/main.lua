@@ -112,6 +112,12 @@ RegisterNUICallback('buyout', function(data, cb)
     cb(true)
 end)
 
+RegisterNUICallback('recoverAuction', function(data, cb)
+    local success, message = lib.callback.await('bcs_auction:server:RecoverAuction', false, data.id)
+    cb(success)
+    Notify("Auction", message, success and "success" or "error")
+end)
+
 RegisterNetEvent("bcs_auction:client:UpdateAuction", function(id, key, value)
     SendNUIMessage({
         action = 'updateAuction',
