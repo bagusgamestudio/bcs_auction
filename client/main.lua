@@ -60,7 +60,11 @@ RegisterNUICallback('getAuctions', function(data, cb)
 end)
 
 RegisterNUICallback('getAuctionById', function(data, cb)
-    cb(lib.callback.await('bcs_auction:server:GetAuctionById', false, data.id))
+    local auction = lib.callback.await('bcs_auction:server:GetAuctionById', false, data.id)
+    if auction then
+        auction = GetCategoryData(auction)
+    end
+    cb(auction)
 end)
 
 RegisterNUICallback('deleteAuction', function(data, cb)

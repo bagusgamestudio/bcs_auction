@@ -55,7 +55,17 @@ const OnGoingView = ({ data }: OnGoingViewProps) => {
 
       <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-green-500/20 rounded-xl p-6">
         <div className="flex items-start gap-4 mb-6">
-          <div className="flex items-center justify-center">{info.icon}</div>
+          {data.category_data?.imageUrl ? (
+            <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={data.category_data.imageUrl}
+                alt={info.label}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">{info.icon}</div>
+          )}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-cyan-50 mb-2">{info.label}</h1>
             <div className="flex items-center gap-3">

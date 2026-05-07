@@ -97,23 +97,23 @@ export const AuctionCard = ({ auction, onRefresh }: AuctionCardProps) => {
               </div>
               <div className="absolute top-3 left-3 flex gap-1">
                 {!isLive && (
-                  <Badge className="bg-blue-500/20 text-cyan-400 border-cyan-500/30 uppercase text-xs font-medium">
+                  <Badge className="bg-blue-500 text-white uppercase text-xs font-medium">
                     {auction.type}
                   </Badge>
                 )}
                 {isSold && (
-                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  <Badge className="bg-blue-500 text-white">
                     <Gavel className="w-3 h-3 mr-1" />
                     SOLD
                   </Badge>
                 )}
                 {isExpired && (
-                  <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30">
+                  <Badge className="bg-slate-500 text-white">
                     EXPIRED
                   </Badge>
                 )}
                 {isLive && (
-                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30 animate-pulse">
+                  <Badge className="bg-red-500 text-white animate-pulse">
                     <Timer className="w-3 h-3 mr-1" />
                     LIVE
                   </Badge>

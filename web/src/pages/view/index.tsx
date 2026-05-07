@@ -8,8 +8,18 @@ import LiveView from "./live";
 import { useNuiEvent } from "@/hooks/useNuiEvent";
 import { parseDate } from "@/utils/date";
 import OnGoingView from "./ongoing";
-import { Gavel, ArrowLeft, Clock, Timer, Car, Home, Package, Search } from "lucide-react";
+import {
+  Gavel,
+  ArrowLeft,
+  Clock,
+  Timer,
+  Car,
+  Home,
+  Package,
+  Search,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const ViewPage = () => {
   const { id } = useParams();
@@ -48,20 +58,21 @@ const ViewPage = () => {
     });
   });
 
-  if (loading) return (
-    <div className="p-8 text-center">
-      <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-cyan-400 border-r-transparent">
+  if (loading)
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-cyan-400 border-r-transparent"></div>
+        <p className="mt-4 text-slate-400">Loading auction...</p>
       </div>
-      <p className="mt-4 text-slate-400">Loading auction...</p>
-    </div>
-  );
+    );
 
-  if (!auction) return (
-    <div className="p-8 text-center">
-      <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-      <p className="text-slate-400">Auction not found</p>
-    </div>
-  );
+  if (!auction)
+    return (
+      <div className="p-8 text-center">
+        <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+        <p className="text-slate-400">Auction not found</p>
+      </div>
+    );
 
   if (auction.finished_at) {
     const isSold = auction.sold_to;
@@ -78,10 +89,14 @@ const ViewPage = () => {
           </Button>
         </div>
         <div className="text-center py-16">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isSold ? "bg-blue-500/20" : "bg-slate-500/20"}`}>
-            <Gavel className={`w-8 h-8 ${isSold ? "text-blue-400" : "text-slate-400"}`} />
+          <div
+            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isSold ? "bg-blue-500" : "bg-slate-500"}`}
+          >
+            <Gavel className={`w-8 h-8 text-white`} />
           </div>
-          <h2 className={`text-2xl font-bold mb-2 ${isSold ? "text-blue-400" : "text-slate-300"}`}>
+          <h2
+            className={`text-2xl font-bold mb-2 ${isSold ? "text-blue-400" : "text-slate-300"}`}
+          >
             {isSold ? "Auction Sold" : "Auction Expired"}
           </h2>
           {isSold ? (
@@ -118,18 +133,21 @@ const ViewPage = () => {
     if (auction.category === "vehicle") {
       return {
         label: auction.category_data?.vehiclePlate || "Vehicle",
-        icon: <Car className="w-16 h-16 text-cyan-400/20" />
+        icon: <Car className="w-16 h-16 text-cyan-400/20" />,
       };
     }
     if (auction.category === "property") {
       return {
         label: auction.category_data?.homeName || "Property",
-        icon: <Home className="w-16 h-16 text-cyan-400/20" />
+        icon: <Home className="w-16 h-16 text-cyan-400/20" />,
       };
     }
     return {
-      label: auction.category_data?.itemLabel || auction.category_data?.itemName || "Item",
-      icon: <Package className="w-16 h-16 text-cyan-400/20" />
+      label:
+        auction.category_data?.itemLabel ||
+        auction.category_data?.itemName ||
+        "Item",
+      icon: <Package className="w-16 h-16 text-cyan-400/20" />,
     };
   };
 
@@ -162,18 +180,33 @@ const ViewPage = () => {
 
       <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-cyan-500/20 rounded-xl p-6">
         <div className="flex items-start gap-4 mb-6">
-          <div className="flex items-center justify-center">{info.icon}</div>
+          {auction.category_data?.imageUrl ? (
+            <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={auction.category_data.imageUrl}
+                alt={info.label}
+                className={cn(
+                  "w-full h-full object-contain",
+                  auction.category === "property" && "object-cover",
+                )}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">{info.icon}</div>
+          )}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl font-bold text-cyan-50">{info.label}</h1>
-              <Badge className="bg-blue-500/20 text-cyan-400 border-cyan-500/30 capitalize">
+              <Badge className="bg-blue-500 text-white capitalize">
                 {auction.type}
               </Badge>
-              <Badge className="bg-slate-500/20 text-slate-300 border-slate-500/30 capitalize">
+              <Badge className="bg-slate-500 text-white capitalize">
                 {auction.category}
               </Badge>
             </div>
-            <p className="text-sm text-slate-400 capitalize">{auction.category} Auction</p>
+            <p className="text-sm text-slate-400 capitalize">
+              {auction.category} Auction
+            </p>
           </div>
         </div>
 
@@ -208,13 +241,17 @@ const ViewPage = () => {
             {auction.start_time && (
               <div className="flex items-center gap-2 text-slate-400">
                 <Clock className="w-4 h-4" />
-                <span>Starts: {parseDate(auction.start_time)?.toLocaleString()}</span>
+                <span>
+                  Starts: {parseDate(auction.start_time)?.toLocaleString()}
+                </span>
               </div>
             )}
             {auction.end_time && (
               <div className="flex items-center gap-2 text-cyan-400">
                 <Timer className="w-4 h-4" />
-                <span>Ends: {parseDate(auction.end_time)?.toLocaleString()}</span>
+                <span>
+                  Ends: {parseDate(auction.end_time)?.toLocaleString()}
+                </span>
               </div>
             )}
           </div>

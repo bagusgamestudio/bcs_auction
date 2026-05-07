@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Radio, Car, Home, Package } from "lucide-react";
 import ListBids from "./bids";
 import Bid from "./bid";
+import { cn } from "@/lib/utils";
 
 interface LiveViewProps {
   data: Auction;
@@ -54,7 +55,20 @@ const LiveView = ({ data }: LiveViewProps) => {
 
       <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-red-500/20 rounded-xl p-6">
         <div className="flex items-start gap-4 mb-6">
-          <div className="flex items-center justify-center">{info.icon}</div>
+          {data.category_data?.imageUrl ? (
+            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={data.category_data.imageUrl}
+                alt={info.label}
+                className={cn(
+                  "w-full h-full object-contain",
+                  data.category === "property" && "object-cover",
+                )}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">{info.icon}</div>
+          )}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-cyan-50 mb-2">
               {info.label}
