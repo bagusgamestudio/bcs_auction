@@ -24,11 +24,19 @@ files {
     'web/dist/**/*',
     'config/*.lua',
     'modules/**/**/*.lua',
+    'stream/kx_buliding_podium.ytyp'
 }
+
+data_file 'DLC_ITYP_REQUEST' 'kx_buliding_podium.ytyp'
 
 ui_page 'web/dist/index.html'
 -- ui_page 'http://localhost:5173/'
 
 escrow_ignore {
     'config/*.lua',
+}
+dependencies {
+    '/assetpacks',
+    'ox_lib',
+    'oxmysql'
 }
