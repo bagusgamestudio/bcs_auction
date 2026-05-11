@@ -20,6 +20,30 @@ A feature-rich **auction house** script for FiveM servers, supporting live and o
 
 ---
 
+## Previews
+<table>
+  <tr>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/a2b54519-fcba-4f5f-8770-41827709380d" /></td>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/f9bb97c0-7f94-40f2-bfce-a2f94eff3ea5" /></td>
+  </tr>
+  <tr>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/2c4775e3-d33c-4705-8797-102b3681ff2e" /></td>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/c19b86a3-5285-40d1-9fb0-6b8a5fbe781d" /></td>
+  </tr>
+  <tr>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/8506ee12-2a4d-4803-a2ca-b39342eab6c2" /></td>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/ba0aacf5-3f39-4f2a-82b2-2e14aee34370" /></td>
+  </tr>
+  <tr>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/eaf7f5a2-b21a-4434-acb0-1e72717d7fe1" /></td>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/20d93ede-9686-425f-acaa-9f1f0d883214" /></td>
+  </tr>
+  <tr>
+    <td><img alt="image" src="https://github.com/user-attachments/assets/ae6b59ef-2878-4472-9143-5093b19574b1" /></td>
+    <td></td>
+  </tr>
+</table>
+
 ## Dependencies
 
 | Dependency | Required | Description |
