@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      # Install zip tool for creating archives
+      - name: Install archive tools
+        run: sudo apt install -y zip
+
+      # Checkout the repository
+      - uses: actions/checkout@v3
+        with:
+          ref: master
+
+      # Install Node.js using setup-node action
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      # Install Bun
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH  # Add Bun to the PATH
+
+      # Install dependencies & Build
+      - name: Install dependencies & Build
+        run: |
+          cd web
+          bun install    # Install dependencies using Bun
+          bun run build  # Run the build script defined in your package.json
+
+      # Generate changelog and determine version bump
+      - name: Determine Version Bump
+        id: version-bump
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+          output-file: false
+          skip-version-file: true # This allows automatic version bumping
+          skip-on-empty: false
+          skip-commit: true # Commit changes if needed
+          release-count: 1
+          fallback-version: '1.0.0'
+
+      # Bump manifest version
+      - name: Bump manifest version
+        run: node .github/actions/bump-manifest-version.js
+        env:
+          TGT_RELEASE_VERSION: ${{ steps.version-bump.outputs.tag }}
+
+      # Push changes to manifest
+      - name: Push manifest change
+        uses: EndBug/add-and-commit@v8
+        with:
+          add: fxmanifest.lua
+          push: true
+          author_name: Manifest Bumper
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: 'chore: bump manifest version to ${{ steps.version-bump.outputs.tag }}'
+
+      - name: Bundle files
+        run: |
+          # Create the bcs_auction directory
+          mkdir bcs_auction
+
+          # Move everything except the bcs_auction directory itself
+          shopt -s extglob dotglob
+          mv !(bcs_auction) bcs_auction
+          shopt -u dotglob
+
+          # Navigate into the web directory of bcs_auction
+          cd bcs_auction/web
+
+          # Remove unwanted directories (src and node_modules)
+          rm -rf !(dist)
+
+          # Remove unwanted files, .prettierrc & .gitignore
+          rm -f .prettierrc .gitignore
+
+          # Navigate back to the parent directory
+          cd ../..
+
+          # Remove the .git directory & .github directory
+          rm -rf bcs_auction/.git bcs_auction/.github
+
+          # Zip the bcs_auction directory
+          zip -r bcs_auction.zip bcs_auction
+
+      # Create GitHub release
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bcs_auction.zip
+          body: ${{ steps.version-bump.outputs.clean_changelog }}
+          tag_name: ${{ steps.version-bump.outputs.tag }}
+
+      - name: Release to public repository
+        uses: softprops/action-gh-release@v1
+        with:
+          repository: baguscodestudio/bcs-character-control
+          token: ${{ secrets.TOKEN_GITHUB }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+          tag_name: ${{ steps.changelog.outputs.tag }}
